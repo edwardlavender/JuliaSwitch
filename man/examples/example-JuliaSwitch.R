@@ -14,13 +14,10 @@ lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
   julia_backend(backend)
 
   #### Start Julia
-  # Start Julia
+  # Start Julia, activate local environment & add DataFrames package
   julia <- julia_start()
-  # Activate local environment
-  # * Add DataFrames package for DataFrames example
-  julia_cmd_line('import Pkg')
-  julia_cmd_line(glue('Pkg.activate("{temp}")'))
-  julia_cmd_line('Pkg.add("DataFrames")')
+  julia_pkg_activate(temp)
+  julia_pkg_add("DataFrames")
 
   #### Run one-line commands
   julia_cmd_line("x = 1")

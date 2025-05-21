@@ -5,8 +5,12 @@
 #' @param name,value For [`julia_push()`]:
 #' * `name` is a `character` that defines the object name in `Julia`.
 #' * `value` is the `R` object.
+#' @param pkg A `character` that defines the name of a `Julia` package.
+#' @param s A `character` that specifies the directory of a `Julia` environment.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
 #' @details
+#'
+#' # Interface
 #'
 #' * [`julia_backend()`] sets the `Julia` backend. This is simply a wrapper for `options(JuliaSwitch.backend = backend)`. The output is returned invisibly. Other functions use this option to `switch` between `JuliaCall` and `JuliaConnectoR` routines.
 #'
@@ -24,6 +28,13 @@
 #' * [`julia_push()`] and [`julia_pull()`] push/pull `R` objects to/from `Julia`.
 #'    - [`julia_push()`] wraps [`JuliaCall::julia_assign()`] or [`juliaAssign()`]. These functions expect a `name`--`value` argument pair.
 #'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaTranslate()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
+#'
+#' # Helpers
+#'
+#' The following helper routines are also exported:
+#' * [`julia_using`] and [`julia_import`] runs `using {pkg}` and `import {Pkg}`
+#' * [`julia_pkg_activate()`] runs `Pkg.activate()`
+#' * [`julia_pkg_add()`] runs `Pkg.add()`
 #'
 #' @example man/examples/example-JuliaSwitch.R
 #' @author Edward Lavender
@@ -106,3 +117,42 @@ julia_pull <- function(...) {
   .julia_pull <- julia_switch(julia_eval, juliaTranslate)
   .julia_pull(...)
 }
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_using <- function(pkg) {
+  sapply(pkg, function(p) {
+    julia_cmd_line(glue('using {p}'))
+  })
+  nothing()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_import <- function(pkg) {
+  sapply(pkg, function(p) {
+    julia_cmd_line(glue('import {p}'))
+  })
+  nothing()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_pkg_activate <- function(s = ".") {
+  julia_cmd_line('import Pkg')
+  julia_cmd_line(glue('Pkg.activate("{s}")'))
+  nothing()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_pkg_add <- function(pkg) {
+  julia_cmd_line('import Pkg')
+  julia_cmd_line(glue('Pkg.add("{pkg}")'))
+  nothing()
+}
+
