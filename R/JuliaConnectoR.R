@@ -1,14 +1,15 @@
 #' @title `JuliaConnectoR` wrappers
 #' @description These internal functions wrap `JuliaConnectoR` routines.
-#' @param name,value Arguments for [`juliaAssign()`].
+#' @param name,value Arguments for [`juliaAllot()`].
 #' * `name` is a `character` that defines the object name in `Julia`.
 #' * `value` is the `R` object.
 #' @param x Arguments for [`juliaClass()`] and [`juliaTranslate()`].
 #' * `x` is a `character` that defines the name of an object in `Julia`.
 #' @details
-#' * [`juliaAssign()`] is a [`JuliaCall::julia_assign()`] equivalent.
+#' * [`juliaAllot()`] is a [`julia_allot()`] equivalent.
 #'    - The default method wraps [`JuliaConnectoR::juliaCall()`];
 #'    - The `data.frame` method translates `data.frame` inputs to `DataFrame`s;
+#'    - The `SpatRaster` method translates [`terra::SpatRaster`]s to `GeoArray`s
 #'
 #' * [`juliaClass()`] extracts the type of a `Julia` object as an R `class`. This is used for method dispatch in [`juliaTranslate()`].
 #'
@@ -23,14 +24,14 @@ NULL
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
-juliaAssign <- function(name, value) {
-  UseMethod("juliaAssign", value)
+juliaAllot <- function(name, value) {
+  UseMethod("juliaAllot", value)
 }
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
-juliaAssign.default <- function(name, value) {
+juliaAllot.default <- function(name, value) {
   assign_expr <- juliaCall("Expr",
                            juliaCall("Symbol", "="),
                            juliaCall("Symbol", name),
@@ -41,10 +42,17 @@ juliaAssign.default <- function(name, value) {
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
-juliaAssign.data.frame <- function(name, value) {
+juliaAllot.data.frame <- function(name, value) {
   juliaEval("using DataFrames")
   value <- juliaCall("DataFrame", value)
-  juliaAssign(name, value)
+  juliaAllot(name, value)
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @keywords internal
+
+juliaAllot.SpatRaster <- function(name, value) {
+  julia_allot_SpatRaster(name, value, juliaEval)
 }
 
 #' @rdname JuliaConnectoR-wrappers

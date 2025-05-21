@@ -14,6 +14,7 @@
 \alias{julia_import}
 \alias{julia_pkg_activate}
 \alias{julia_pkg_add}
+\alias{julia_println}
 \title{Julia interface}
 \usage{
 julia_backend(backend = c("JuliaCall", "JuliaConnectoR"))
@@ -39,6 +40,8 @@ julia_import(pkg)
 julia_pkg_activate(s = ".")
 
 julia_pkg_add(pkg)
+
+julia_println(name)
 }
 \arguments{
 \item{backend}{A \code{character} string that defines the \code{Julia} backend (\code{"JuliaCall"} or \code{"JuliaConnectoR"}).}
@@ -79,7 +82,7 @@ A common \code{R}--\code{Julia} interface syntax.
 }
 \item \code{\link[=julia_push]{julia_push()}} and \code{\link[=julia_pull]{julia_pull()}} push/pull \code{R} objects to/from \code{Julia}.
 \itemize{
-\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}} or \code{\link[=juliaAssign]{juliaAssign()}}. These functions expect a \code{name}--\code{value} argument pair.
+\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_allot]{julia_allot()}} or \code{\link[=juliaAllot]{juliaAllot()}}. These functions expect a \code{name}--\code{value} argument pair.
 \item \code{\link[=julia_pull]{julia_pull()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} or \code{\link[=juliaTranslate]{juliaTranslate()}}. These functions expect a \code{character} string of \code{Julia} code or the name of an \code{object} in \code{Julia} that is pulled to \code{R}.
 }
 }
@@ -88,74 +91,87 @@ A common \code{R}--\code{Julia} interface syntax.
 \section{Helpers}{
 The following helper routines are also exported:
 \itemize{
-\item \code{\link{julia_using}} and \code{\link{julia_import}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}}
+\item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}}
 \item \code{\link[=julia_pkg_activate]{julia_pkg_activate()}} runs \code{Pkg.activate()}
 \item \code{\link[=julia_pkg_add]{julia_pkg_add()}} runs \code{Pkg.add()}
+\item \code{\link[=julia_println]{julia_println()}} runs \code{println()}
 }
 }
 
 \examples{
-# Load packages
-library(glue)
+# The following suggested packages are required for these examples
+library(curl)
+library(terra)
 
-# Define temporary Julia project
-temp <- file.path(tempdir(), "JuliaSwitch")
-dir.create(temp)
+# Run examples if internet is available
+# This is required to install selected Julia packages (below)
+if (curl::has_internet()) {
 
-# Run Julia code with each backend
-lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
+  # Define temporary Julia project
+  temp <- file.path(tempdir(), "JuliaSwitch")
 
-  #### Set Julia backend
-  # julia_backend("JuliaCall")
-  # julia_backend("JuliaConnectoR")
-  julia_backend(backend)
+  # Run Julia code with each backend
+  lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
 
-  #### Start Julia
-  # Start Julia, activate local environment & add DataFrames package
-  julia <- julia_start()
-  julia_pkg_activate(temp)
-  julia_pkg_add("DataFrames")
+    #### Set Julia backend
+    # julia_backend("JuliaCall")
+    # julia_backend("JuliaConnectoR")
+    julia_backend(backend)
 
-  #### Run one-line commands
-  julia_cmd_line("x = 1")
-  julia_cmd_line("println(x)")
+    #### Start Julia
+    # Start Julia, activate local environment & add DataFrames package
+    dir.create(temp, showWarnings = FALSE)
+    julia <- julia_start()
+    julia_pkg_activate(temp)
+    julia_pkg_add("DataFrames")
+    julia_pkg_add("GeoArrays")
 
-  #### Run larger commands
-  julia_cmd_block(
+    #### Run one-line commands
+    julia_cmd_line("x = 1")
+    julia_println("x")
+
+    #### Run larger commands
+    julia_cmd_block(
+      '
+      x = 2
+      y = 3
     '
-  x = 2
-  y = 3
-  '
-  )
-  julia_cmd_line("println(x)")
-  julia_cmd_line("println(y)")
+    )
+    julia_println("x")
+    julia_println("y")
 
-  #### Push objects to Julia
-  # Push a matrix
-  m1 <- matrix(1:4)
-  julia_push("m1", m1)
-  julia_cmd_line('m1')
-  # Push a data.frame
-  d1 <- data.frame(x = c(1, 2, 3), y = c(4, 5, 6))
-  julia_push("d1", d1)
-  julia_cmd_line('println(d1)')
+    #### Push objects to Julia
+    # Push a matrix
+    m1 <- matrix(1:4)
+    julia_push("m1", m1)
+    julia_println("m1")
+    # Push a data.frame
+    d1 <- data.frame(x = c(1, 2, 3), y = c(4, 5, 6))
+    julia_push("d1", d1)
+    julia_println("d1")
+    # Push a SpatRaster
+    r1 <- terra::rast(system.file("ex", "elev.tif",
+                                  package = "terra", mustWork = TRUE))
+    julia_push("r1", r1)
+    julia_println("r1")
 
-  #### Pull objects from Julia
-  # Pull the matrix
-  m2 <- julia_pull('m1')
-  stopifnot(identical(m1, m2))
-  # Pull the data.frame
-  d2 <- julia_pull('d1')
-  stopifnot(identical(d1, d2))
+    #### Pull objects from Julia
+    # Pull the matrix
+    m2 <- julia_pull('m1')
+    stopifnot(identical(m1, m2))
+    # Pull the data.frame
+    d2 <- julia_pull('d1')
+    stopifnot(identical(d1, d2))
 
-  #### Close Julia session
-  julia_stop()
+    #### Close Julia session
+    julia_stop()
 
-  # Clean up
-  unlink(temp, recursive = TRUE)
+    # Clean up
+    unlink(temp, recursive = TRUE)
 
-})
+  })
 
+}
 }
 \author{
 Edward Lavender

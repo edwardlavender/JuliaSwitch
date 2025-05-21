@@ -26,15 +26,16 @@
 #'    - This runs the `Julia` code `include(file)` via [`JuliaCall::julia_command()`] or [`JuliaConnectoR::juliaEval()`].
 #'
 #' * [`julia_push()`] and [`julia_pull()`] push/pull `R` objects to/from `Julia`.
-#'    - [`julia_push()`] wraps [`JuliaCall::julia_assign()`] or [`juliaAssign()`]. These functions expect a `name`--`value` argument pair.
+#'    - [`julia_push()`] wraps [`julia_allot()`] or [`juliaAllot()`]. These functions expect a `name`--`value` argument pair.
 #'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaTranslate()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
 #'
 #' # Helpers
 #'
 #' The following helper routines are also exported:
-#' * [`julia_using`] and [`julia_import`] runs `using {pkg}` and `import {Pkg}`
+#' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`
 #' * [`julia_pkg_activate()`] runs `Pkg.activate()`
 #' * [`julia_pkg_add()`] runs `Pkg.add()`
+#' * [`julia_println()`] runs `println()`
 #'
 #' @example man/examples/example-JuliaSwitch.R
 #' @author Edward Lavender
@@ -105,7 +106,7 @@ julia_include <- function(file) {
 
 # Push R objects to Julia
 julia_push <- function(name, value) {
-  .julia_push <- julia_switch(julia_assign, juliaAssign)
+  .julia_push <- julia_switch(julia_allot, juliaAllot)
   .julia_push(name, value)
 }
 
@@ -156,3 +157,9 @@ julia_pkg_add <- function(pkg) {
   nothing()
 }
 
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_println <- function(name) {
+  julia_cmd_line(glue('println({name})'))
+}

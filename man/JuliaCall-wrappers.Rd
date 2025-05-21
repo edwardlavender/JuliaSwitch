@@ -3,9 +3,18 @@
 \name{JuliaCall-wrappers}
 \alias{JuliaCall-wrappers}
 \alias{julia_terminate}
+\alias{julia_allot}
+\alias{julia_allot.default}
+\alias{julia_allot.SpatRaster}
 \title{\code{JuliaCall} wrappers}
 \usage{
 julia_terminate()
+
+julia_allot(name, value)
+
+\method{julia_allot}{default}(name, value)
+
+\method{julia_allot}{SpatRaster}(name, value)
 }
 \description{
 These internal functions wrap \code{JuliaCall} routines.
@@ -13,6 +22,12 @@ These internal functions wrap \code{JuliaCall} routines.
 \details{
 \itemize{
 \item \code{\link[=julia_terminate]{julia_terminate()}} is a placeholder equivalent for \code{\link[JuliaConnectoR:stopJulia]{JuliaConnectoR::stopJulia()}}.
+\item \code{\link[=julia_allot]{julia_allot()}} is a \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}} wrapper:
+\itemize{
+\item The default method simply calls \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}};
+\item The default method handles \code{data.frame} objects;
+\item The \code{SpatRaster} method translates \code{\link[terra:SpatRaster-class]{terra::SpatRaster}}s to \code{GeoArray}s;
+}
 }
 }
 \author{

@@ -4,3 +4,10 @@
 nothing <- function() {
   invisible(NULL)
 }
+
+# Simple rlang::check_installed() replacement
+check_installed <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(glue("This function requires the `{pkg}` package.", call. = FALSE))
+  }
+}
