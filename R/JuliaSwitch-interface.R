@@ -26,7 +26,7 @@
 #'    - This runs the `Julia` code `include(file)` via [`JuliaCall::julia_command()`] or [`JuliaConnectoR::juliaEval()`].
 #'
 #' * [`julia_push()`] and [`julia_pull()`] push/pull `R` objects to/from `Julia`.
-#'    - [`julia_push()`] wraps [`julia_allot()`] or [`juliaAllot()`]. These functions expect a `name`--`value` argument pair.
+#'    - [`julia_push()`] wraps [`julia_allot()`] or [`juliaAllot()`]. These functions expect a `name`--`value` argument pair. [`julia_push()`] returns `invisible(NULL)`.
 #'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaTranslate()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
 #'
 #' # Helpers
@@ -108,6 +108,7 @@ julia_include <- function(file) {
 julia_push <- function(name, value) {
   .julia_push <- julia_switch(julia_allot, juliaAllot)
   .julia_push(name, value)
+  nothing()
 }
 
 #' @rdname JuliaSwitch-interface

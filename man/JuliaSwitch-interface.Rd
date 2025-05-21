@@ -82,7 +82,7 @@ A common \code{R}--\code{Julia} interface syntax.
 }
 \item \code{\link[=julia_push]{julia_push()}} and \code{\link[=julia_pull]{julia_pull()}} push/pull \code{R} objects to/from \code{Julia}.
 \itemize{
-\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_allot]{julia_allot()}} or \code{\link[=juliaAllot]{juliaAllot()}}. These functions expect a \code{name}--\code{value} argument pair.
+\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_allot]{julia_allot()}} or \code{\link[=juliaAllot]{juliaAllot()}}. These functions expect a \code{name}--\code{value} argument pair. \code{\link[=julia_push]{julia_push()}} returns \code{invisible(NULL)}.
 \item \code{\link[=julia_pull]{julia_pull()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} or \code{\link[=juliaTranslate]{juliaTranslate()}}. These functions expect a \code{character} string of \code{Julia} code or the name of an \code{object} in \code{Julia} that is pulled to \code{R}.
 }
 }
