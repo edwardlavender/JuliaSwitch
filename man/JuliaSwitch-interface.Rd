@@ -15,6 +15,8 @@
 \alias{julia_pkg_activate}
 \alias{julia_pkg_add}
 \alias{julia_println}
+\alias{julia_save}
+\alias{julia_load}
 \title{Julia interface}
 \usage{
 julia_backend(backend = c("JuliaCall", "JuliaConnectoR"))
@@ -42,13 +44,17 @@ julia_pkg_activate(s = ".")
 julia_pkg_add(pkg)
 
 julia_println(name)
+
+julia_save(name, file = name)
+
+julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 }
 \arguments{
 \item{backend}{A \code{character} string that defines the \code{Julia} backend (\code{"JuliaCall"} or \code{"JuliaConnectoR"}).}
 
 \item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
 
-\item{file}{For \code{\link[=julia_include]{julia_include()}}, \code{file} is a \code{character} string that defines the name of a \code{Julia} script to source.}
+\item{file}{For \code{\link[=julia_save]{julia_save()}} and \code{\link[=julia_save]{julia_save()}}, \code{file} is a \code{character} string that defines a file path.}
 
 \item{name, value}{For \code{\link[=julia_push]{julia_push()}}:
 \itemize{
@@ -91,10 +97,15 @@ A common \code{R}--\code{Julia} interface syntax.
 \section{Helpers}{
 The following helper routines are also exported:
 \itemize{
-\item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}}
-\item \code{\link[=julia_pkg_activate]{julia_pkg_activate()}} runs \code{Pkg.activate()}
-\item \code{\link[=julia_pkg_add]{julia_pkg_add()}} runs \code{Pkg.add()}
-\item \code{\link[=julia_println]{julia_println()}} runs \code{println()}
+\item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}};
+\item \code{\link[=julia_pkg_activate]{julia_pkg_activate()}} runs \code{Pkg.activate()};
+\item \code{\link[=julia_pkg_add]{julia_pkg_add()}} runs \code{Pkg.add()};
+\item \code{\link[=julia_println]{julia_println()}} runs \code{println()};
+\item \code{\link[=julia_save]{julia_save()}} and \code{\link[=julia_load]{julia_load()}} run \verb{using JLD2} plus \verb{@save \{file\} \{name\}} or \verb{@load \{file\} \{name\}}:
+\itemize{
+\item \code{\link[=julia_save]{julia_save()}} returns the absolute file path for \code{file};
+\item \code{\link[=julia_load]{julia_load()}} returns \code{invisible(NULL)};
+}
 }
 }
 

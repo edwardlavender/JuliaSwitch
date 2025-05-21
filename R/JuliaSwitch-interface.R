@@ -7,6 +7,7 @@
 #' * `value` is the `R` object.
 #' @param pkg A `character` that defines the name of a `Julia` package.
 #' @param s A `character` that specifies the directory of a `Julia` environment.
+#' @param file For [`julia_save()`] and [`julia_save()`], `file` is a `character` string that defines a file path.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
 #' @details
 #'
@@ -32,10 +33,13 @@
 #' # Helpers
 #'
 #' The following helper routines are also exported:
-#' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`
-#' * [`julia_pkg_activate()`] runs `Pkg.activate()`
-#' * [`julia_pkg_add()`] runs `Pkg.add()`
-#' * [`julia_println()`] runs `println()`
+#' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`;
+#' * [`julia_pkg_activate()`] runs `Pkg.activate()`;
+#' * [`julia_pkg_add()`] runs `Pkg.add()`;
+#' * [`julia_println()`] runs `println()`;
+#' * [`julia_save()`] and [`julia_load()`] run `using JLD2` plus `@save {file} {name}` or `@load {file} {name}`:
+#'    - [`julia_save()`] returns the absolute file path for `file`;
+#'    - [`julia_load()`] returns `invisible(NULL)`;
 #'
 #' @example man/examples/example-JuliaSwitch.R
 #' @author Edward Lavender
@@ -163,4 +167,25 @@ julia_pkg_add <- function(pkg) {
 
 julia_println <- function(name) {
   julia_cmd_line(glue('println({name})'))
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_save <- function(name, file = name) {
+  julia_using("JLD2")
+  file <- normalizePath(file, winslash = "/", mustWork = FALSE)
+  file <- glue("{tools::file_path_sans_ext(file)}.jld2")
+  julia_cmd_line(glue('@save "{file}" {name};'))
+  tools::file_path_as_absolute(file)
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_load <- function(file, name = basename(tools::file_path_sans_ext(file))) {
+  julia_using("JLD2")
+  file <- normalizePath(file, winslash = "/", mustWork = TRUE)
+  julia_cmd_line(glue('@load "{file}" {name};'))
+  nothing()
 }
