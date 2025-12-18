@@ -80,6 +80,6 @@ juliaTranslate.default <- function(x) {
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
-juliaTranslate.DataFrame <- function(x) {
+juliaTranslate.DataFrames.DataFrame <- function(x) {
   as.data.frame(juliaEval(x))
 }

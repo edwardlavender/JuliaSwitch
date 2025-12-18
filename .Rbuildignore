@@ -3,3 +3,5 @@
 ^LICENSE\.md$
 ^Manifest\.toml$
 ^Project\.toml$
+^README\.Rmd$
+^dev$

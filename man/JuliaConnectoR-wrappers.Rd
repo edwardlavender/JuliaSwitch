@@ -9,7 +9,7 @@
 \alias{juliaClass}
 \alias{juliaTranslate}
 \alias{juliaTranslate.default}
-\alias{juliaTranslate.DataFrame}
+\alias{juliaTranslate.DataFrames.DataFrame}
 \title{\code{JuliaConnectoR} wrappers}
 \usage{
 juliaAllot(name, value)
@@ -26,7 +26,7 @@ juliaTranslate(x)
 
 \method{juliaTranslate}{default}(x)
 
-\method{juliaTranslate}{DataFrame}(x)
+\method{juliaTranslate}{DataFrames.DataFrame}(x)
 }
 \arguments{
 \item{name, value}{Arguments for \code{\link[=juliaAllot]{juliaAllot()}}.
