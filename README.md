@@ -11,7 +11,7 @@ provides a common syntax that enables users to switch between multiple
 backends for `R`–`Julia` communication without changes to the code base.
 
 - **Run `Julia` code** via a `julia_*()` helper function or
-  `julia_cmd_line()`/`julia_cmd_block()`;
+  `julia_cmd()`;
 - **Push objects to `Julia`** using `julia_push()`;
 - **Pull objects back** via `julia_pull()`;
 
@@ -53,7 +53,7 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 
 - Start a `Julia` session via `julia_start()`.
 
-- Run arbitrary `Julia` code via `julia_cmd_line()` and
+- Run arbitrary `Julia` code via `julia_cmd()`, `julia_cmd_line()` and
   `julia_cmd_block()`.
 
 - For selected operations, helper functions are provided:
@@ -75,11 +75,30 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 
 `JuliaSwitch` uses `S3` methods to handle object transfers between `R`
 and `Julia`. Method dispatch is implemented by the internal functions
-`julia_allot()`, `juliaAllot()` and `juliaTranslate()`.The default
-methods call the relevant `JuliaCall` or `JuliaConnectoR` routines.
-Special cases (such as `data.frame`s and `terra::SpatRaster`s) are
-handled by custom methods. Specify additional methods for other special
-cases.
+`julia_send()`, `juliaSend()` and `juliaReceive()`.The default methods
+call the relevant `JuliaCall` or `JuliaConnectoR` routines. Special
+cases (such as `data.frame`s and `terra::SpatRaster`s) are handled by
+custom methods. Specify additional methods for other special cases.
+
+# Citation
+
+**To cite `JuliaSwitch` in publications**, please use:
+
+Lavender, E., Albert, C., & Scheidegger, A. (2025). Animal geolocation
+with convolution algorithms in Julia and R via Wahoo.jl. Methods in
+Ecology and Evolution, 00, 1–8.
+<https://doi.org/10.1111/2041-210x.70185>
+
+``` bibtex
+@article{Lavender2025Wahoo,
+  author  = {Lavender, Edward and Albert, Carlo and Scheidegger, Andreas},
+  title   = {Animal geolocation with convolution algorithms in Julia and R via Wahoo.jl},
+  journal = {Methods in Ecology and Evolution},
+  doi     = {10.1111/2041-210X.70185},
+  url     = {https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.70185},
+  keywords = {biologging, biotelemetry, filter, hidden Markov model, movement ecology, package, passive acoustic telemetry, state-space model}
+}
+```
 
 # Code of conduct
 

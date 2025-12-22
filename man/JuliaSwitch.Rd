@@ -8,6 +8,9 @@
 \description{
 Switch between Julia interfaces (JuliaCall, JuliaConnectoR) for R with a common syntax.
 }
+\details{
+For a list of exported functions, see \code{\link{JuliaSwitch-interface}}.
+}
 \seealso{
 Useful links:
 \itemize{

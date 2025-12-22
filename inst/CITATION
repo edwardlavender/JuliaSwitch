@@ -1,0 +1,21 @@
+c(
+  citHeader("To cite `JuliaSwitch` in publications, please cite the following publication:"),
+
+  bibentry(
+    bibtype = "Article",
+    key     = "Lavender2025a",
+    author  = c(
+      person("Edward", "Lavender"),
+      person("Andreas", "Scheidegger"),
+      person("Carlo", "Albert")
+    ),
+    title   = "Animal geolocation with convolution algorithms in Julia and R via Wahoo.jl",
+    journal = "Methods in Ecology and Evolution",
+    year    = "2025",
+    volume  = "00",
+    pages   = "1–8",
+    doi     = "10.1111/2041-210x.70185"
+  ),
+
+  citFooter("Thank you for citing the package. Your citations help to justify continued investments in its development.")
+)

@@ -1,6 +1,6 @@
 Package: JuliaSwitch
 Title: A common Julia interface for R
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person("Edward", "Lavender", 
            email = "edward.lavender@eawag.ch", 
@@ -13,8 +13,8 @@ Depends:
 Imports:
     glue, JuliaCall, JuliaConnectoR
 Suggests:
-    curl, terra
-Config/testthat/edition: 3
+    curl,
+    terra
 URL: https://github.com/edwardlavender/JuliaSwitch/
 BugReports: https://github.com/edwardlavender/JuliaSwitch/issues/
 Encoding: UTF-8

@@ -2,32 +2,53 @@
 % Please edit documentation in R/JuliaCall.R
 \name{JuliaCall-wrappers}
 \alias{JuliaCall-wrappers}
+\alias{julia_initialise}
+\alias{julia_send}
+\alias{julia_send.default}
+\alias{julia_send.SpatRaster}
+\alias{julia_class}
+\alias{julia_receive}
+\alias{julia_receive.default}
 \alias{julia_terminate}
-\alias{julia_allot}
-\alias{julia_allot.default}
-\alias{julia_allot.SpatRaster}
 \title{\code{JuliaCall} wrappers}
 \usage{
+julia_initialise(...)
+
+julia_send(name, value)
+
+\method{julia_send}{default}(name, value)
+
+\method{julia_send}{SpatRaster}(name, value)
+
+julia_class(x)
+
+julia_receive(x)
+
+\method{julia_receive}{default}(x)
+
 julia_terminate()
-
-julia_allot(name, value)
-
-\method{julia_allot}{default}(name, value)
-
-\method{julia_allot}{SpatRaster}(name, value)
 }
 \description{
 These internal functions wrap \code{JuliaCall} routines.
 }
 \details{
 \itemize{
-\item \code{\link[=julia_terminate]{julia_terminate()}} is a placeholder equivalent for \code{\link[JuliaConnectoR:stopJulia]{JuliaConnectoR::stopJulia()}}.
-\item \code{\link[=julia_allot]{julia_allot()}} is a \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}} wrapper:
+\item \code{\link{julia_initialise}} starts \code{Julia} via \code{\link[JuliaCall:julia_setup]{JuliaCall::julia_setup()}};
+\item \code{\link[=julia_send]{julia_send()}} wraps \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}}:
 \itemize{
 \item The default method simply calls \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}};
 \item The default method handles \code{data.frame} objects;
 \item The \code{SpatRaster} method translates \code{\link[terra:SpatRaster-class]{terra::SpatRaster}}s to \code{GeoArray}s;
 }
+\item \code{\link[=julia_class]{julia_class()}} extracts the type of a \code{Julia} object as an R \code{class}:
+\itemize{
+\item This is used for method dispatch in \code{\link[=juliaReceive]{juliaReceive()}};
+}
+\item \code{\link[=julia_receive]{julia_receive()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} wrapper:
+\itemize{
+\item The default method handles wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} and handles \code{\link{data.frame}}s;
+}
+\item \code{\link[=julia_terminate]{julia_terminate()}} is a placeholder equivalent for \code{\link[=juliaTerminate]{juliaTerminate()}} (\code{\link[JuliaConnectoR:stopJulia]{JuliaConnectoR::stopJulia()}});
 }
 }
 \author{

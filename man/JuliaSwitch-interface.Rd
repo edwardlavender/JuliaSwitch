@@ -5,6 +5,7 @@
 \alias{julia_backend}
 \alias{julia_start}
 \alias{julia_stop}
+\alias{julia_cmd}
 \alias{julia_cmd_line}
 \alias{julia_cmd_block}
 \alias{julia_include}
@@ -23,11 +24,13 @@ julia_backend(backend = c("JuliaCall", "JuliaConnectoR"))
 
 julia_start(...)
 
-julia_stop(...)
+julia_stop()
 
-julia_cmd_line(...)
+julia_cmd(string)
 
-julia_cmd_block(...)
+julia_cmd_line(string)
+
+julia_cmd_block(string)
 
 julia_include(file)
 
@@ -54,7 +57,9 @@ julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 
 \item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
 
-\item{file}{For \code{\link[=julia_save]{julia_save()}} and \code{\link[=julia_save]{julia_save()}}, \code{file} is a \code{character} string that defines a file path.}
+\item{string}{A \code{character} string of \code{Julia} code.}
+
+\item{file}{For \code{\link[=julia_include]{julia_include()}}, \code{file} is a \code{character} string that defines the name of a \code{Julia} script to source.}
 
 \item{name, value}{For \code{\link[=julia_push]{julia_push()}}:
 \itemize{
@@ -77,10 +82,10 @@ A common \code{R}--\code{Julia} interface syntax.
 \item \code{\link[=julia_start]{julia_start()}} wraps \code{\link[JuliaCall:julia_setup]{JuliaCall::julia_setup()}} and \code{\link[JuliaConnectoR:startJuliaServer]{JuliaConnectoR::startJuliaServer()}}.
 \item \code{\link[=julia_stop]{julia_stop()}} wraps \code{\link[=julia_terminate]{julia_terminate()}} and \code{\link[JuliaConnectoR:stopJulia]{JuliaConnectoR::stopJulia()}}, respectively. Note that \code{\link[=julia_terminate]{julia_terminate()}} is simply a placeholder that does not terminate the \code{Julia} connection.
 }
-\item \code{\link[=julia_cmd_line]{julia_cmd_line()}} and \code{\link[=julia_cmd_block]{julia_cmd_block()}} run lines/blocks of \code{Julia} code, provided as \code{character} strings.
+\item \code{\link[=julia_cmd]{julia_cmd()}} runs arbitrary \code{Julia} code provided as \code{character} strings. This uses:
 \itemize{
-\item \code{\link[=julia_cmd_line]{julia_cmd_line()}} wraps \code{\link[JuliaCall:julia_command]{JuliaCall::julia_command()}} or \code{\link[JuliaConnectoR:juliaEval]{JuliaConnectoR::juliaEval()}} and returns \code{invisible(NULL)}.
-\item \code{\link[=julia_cmd_block]{julia_cmd_block()}} wraps \code{\link[=julia_include]{julia_include()}} and returns \code{invisible(NULL)}.
+\item \code{\link[=julia_cmd_line]{julia_cmd_line()}} runs a single line of code, wrapping \code{\link[JuliaCall:julia_command]{JuliaCall::julia_command()}} or \code{\link[JuliaConnectoR:juliaEval]{JuliaConnectoR::juliaEval()}} and returning \code{invisible(NULL)}.
+\item \code{\link[=julia_cmd_block]{julia_cmd_block()}} runs a block of code, wrapping \code{\link[=julia_include]{julia_include()}} and returning \code{invisible(NULL)}.
 }
 \item \code{\link[=julia_include]{julia_include()}} sources a \code{Julia} script.
 \itemize{
@@ -88,8 +93,8 @@ A common \code{R}--\code{Julia} interface syntax.
 }
 \item \code{\link[=julia_push]{julia_push()}} and \code{\link[=julia_pull]{julia_pull()}} push/pull \code{R} objects to/from \code{Julia}.
 \itemize{
-\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_allot]{julia_allot()}} or \code{\link[=juliaAllot]{juliaAllot()}}. These functions expect a \code{name}--\code{value} argument pair. \code{\link[=julia_push]{julia_push()}} returns \code{invisible(NULL)}.
-\item \code{\link[=julia_pull]{julia_pull()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} or \code{\link[=juliaTranslate]{juliaTranslate()}}. These functions expect a \code{character} string of \code{Julia} code or the name of an \code{object} in \code{Julia} that is pulled to \code{R}.
+\item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_send]{julia_send()}} or \code{\link[=juliaSend]{juliaSend()}}. These functions expect a \code{name}--\code{value} argument pair. \code{\link[=julia_push]{julia_push()}} returns \code{invisible(NULL)}.
+\item \code{\link[=julia_pull]{julia_pull()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} or \code{\link[=juliaReceive]{juliaReceive()}}. These functions expect a \code{character} string of \code{Julia} code or the name of an \code{object} in \code{Julia} that is pulled to \code{R}.
 }
 }
 }

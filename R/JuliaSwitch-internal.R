@@ -11,7 +11,7 @@ julia_switch <- function(JuliaCall, JuliaConnectoR) {
 }
 
 # Assign SpatRasters
-julia_allot_SpatRaster <- function(name, value, command) {
+julia_send_SpatRaster <- function(name, value, command) {
   # Checks
   check_installed("terra")
   stopifnot(inherits(value, "SpatRaster"))

@@ -7,7 +7,7 @@
 #' * `value` is the `R` object.
 #' @param pkg A `character` that defines the name of a `Julia` package.
 #' @param s A `character` that specifies the directory of a `Julia` environment.
-#' @param file For [`julia_save()`] and [`julia_save()`], `file` is a `character` string that defines a file path.
+#' @param string A `character` string of `Julia` code.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
 #' @details
 #'
@@ -19,16 +19,16 @@
 #'    - [`julia_start()`] wraps [`JuliaCall::julia_setup()`] and [`JuliaConnectoR::startJuliaServer()`].
 #'    - [`julia_stop()`] wraps [`julia_terminate()`] and [`JuliaConnectoR::stopJulia()`], respectively. Note that [`julia_terminate()`] is simply a placeholder that does not terminate the `Julia` connection.
 #'
-#' * [`julia_cmd_line()`] and [`julia_cmd_block()`] run lines/blocks of `Julia` code, provided as `character` strings.
-#'    - [`julia_cmd_line()`] wraps [`JuliaCall::julia_command()`] or [`JuliaConnectoR::juliaEval()`] and returns `invisible(NULL)`.
-#'    - [`julia_cmd_block()`] wraps [`julia_include()`] and returns `invisible(NULL)`.
+#' * [`julia_cmd()`] runs arbitrary `Julia` code provided as `character` strings. This uses:
+#'    - [`julia_cmd_line()`] runs a single line of code, wrapping [`JuliaCall::julia_command()`] or [`JuliaConnectoR::juliaEval()`] and returning `invisible(NULL)`.
+#'    - [`julia_cmd_block()`] runs a block of code, wrapping [`julia_include()`] and returning `invisible(NULL)`.
 #'
 #' * [`julia_include()`] sources a `Julia` script.
 #'    - This runs the `Julia` code `include(file)` via [`JuliaCall::julia_command()`] or [`JuliaConnectoR::juliaEval()`].
 #'
 #' * [`julia_push()`] and [`julia_pull()`] push/pull `R` objects to/from `Julia`.
-#'    - [`julia_push()`] wraps [`julia_allot()`] or [`juliaAllot()`]. These functions expect a `name`--`value` argument pair. [`julia_push()`] returns `invisible(NULL)`.
-#'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaTranslate()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
+#'    - [`julia_push()`] wraps [`julia_send()`] or [`juliaSend()`]. These functions expect a `name`--`value` argument pair. [`julia_push()`] returns `invisible(NULL)`.
+#'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaReceive()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
 #'
 #' # Helpers
 #'
@@ -61,7 +61,7 @@ julia_backend <- function(backend = c("JuliaCall", "JuliaConnectoR")) {
 
 # Start Julia
 julia_start <- function(...) {
-  .julia_start <- julia_switch(julia_setup, startJuliaServer)
+  .julia_start <- julia_switch(julia_initialise, juliaInitialise)
   .julia_start(...)
 }
 
@@ -69,18 +69,37 @@ julia_start <- function(...) {
 #' @export
 
 # Stop Julia
-julia_stop <- function(...) {
-  .julia_stop <- julia_switch(julia_terminate, stopJulia)
-  .julia_stop(...)
+julia_stop <- function() {
+  .julia_stop <- julia_switch(julia_terminate, juliaTerminate)
+  .julia_stop()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+# Run arbitrary (one line or multi-line) Julia commands
+julia_cmd <- function(string){
+  if (str_multiline(string)) {
+    julia_cmd_line(string)
+  } else {
+    julia_cmd_block(string)
+  }
+  nothing()
 }
 
 #' @rdname JuliaSwitch-interface
 #' @export
 
 # Run a one-line command in Julia
-julia_cmd_line <- function(...) {
+julia_cmd_line <- function(string) {
+  # Add semi-colon
+  # * This unifies behaviour of julia_command and juliaEval
+  # * And improves speed in juliaEval() with large objects
+  #   b/c NULL not the object is returned
+  string <- str_add_semicolon(string)
+  # Run command
   .julia_cmd_line <- julia_switch(julia_command, juliaEval)
-  .julia_cmd_line(...)
+  .julia_cmd_line(string)
   nothing()
 }
 
@@ -88,10 +107,10 @@ julia_cmd_line <- function(...) {
 #' @export
 
 # Run a larger piece of Julia code
-julia_cmd_block <- function(...) {
+julia_cmd_block <- function(string) {
   file <- tempfile(fileext = ".jl")
   on.exit(unlink(file), add = TRUE)
-  writeLines(..., file)
+  writeLines(string, file)
   # readLines(file)
   julia_include(file)
   nothing()
@@ -110,7 +129,7 @@ julia_include <- function(file) {
 
 # Push R objects to Julia
 julia_push <- function(name, value) {
-  .julia_push <- julia_switch(julia_allot, juliaAllot)
+  .julia_push <- julia_switch(julia_send, juliaSend)
   .julia_push(name, value)
   nothing()
 }
@@ -120,7 +139,7 @@ julia_push <- function(name, value) {
 
 # Pull objects from Julia
 julia_pull <- function(...) {
-  .julia_pull <- julia_switch(julia_eval, juliaTranslate)
+  .julia_pull <- julia_switch(julia_receive, juliaReceive)
   .julia_pull(...)
 }
 
