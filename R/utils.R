@@ -22,7 +22,7 @@ str_add_semicolon <- function(x) {
 
 # Check if a string has multiple lines (TRUE/FALSE)
 str_multiline <- function(x) {
-  str_nlines(x > 1L)
+  str_nlines(x) > 1L
 }
 
 # Count the number of lines in a string
