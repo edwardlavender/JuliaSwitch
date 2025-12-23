@@ -1,7 +1,17 @@
 # JuliaSwitch 0.0.2
 
-* Update internal functions 
-* Add `julia_cmd()` function
+* Export new functions:
+    - `julia_cmd()` to run arbitrary code;
+    - `julia_pkg_installed()` to check if Julia package(s) are installed;
+    - `julia_pkg_update()`, to update Julia package(s);
+    
+* Improve flexibility:
+    - `julia_pkg_*()` functions support multiple packages;
+    
+* Update internal functions
+    - Add `julia_initalise()` and `juliaInitialise()` wrappers;
+    - Rename `julia_allot()` and `juliaAllot()` to `julia_send()` and `JuliaSend()`;
+    - Add/rename `julia_receive()` and `juliaReceiver()` (formerly `juliaTranslate()`);
 
 # JuliaSwitch 0.0.1
 

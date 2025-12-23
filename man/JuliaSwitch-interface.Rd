@@ -11,10 +11,13 @@
 \alias{julia_include}
 \alias{julia_push}
 \alias{julia_pull}
+\alias{julia_defined}
 \alias{julia_using}
 \alias{julia_import}
 \alias{julia_pkg_activate}
 \alias{julia_pkg_add}
+\alias{julia_pkg_update}
+\alias{julia_pkg_installed}
 \alias{julia_println}
 \alias{julia_save}
 \alias{julia_load}
@@ -38,6 +41,8 @@ julia_push(name, value)
 
 julia_pull(...)
 
+julia_defined(name)
+
 julia_using(pkg)
 
 julia_import(pkg)
@@ -45,6 +50,10 @@ julia_import(pkg)
 julia_pkg_activate(s = ".")
 
 julia_pkg_add(pkg)
+
+julia_pkg_update(pkg)
+
+julia_pkg_installed(pkg)
 
 julia_println(name)
 
@@ -67,7 +76,7 @@ julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 \item \code{value} is the \code{R} object.
 }}
 
-\item{pkg}{A \code{character} that defines the name of a \code{Julia} package.}
+\item{pkg}{A \code{character} vector of \code{Julia} package name(s).}
 
 \item{s}{A \code{character} that specifies the directory of a \code{Julia} environment.}
 }
@@ -102,9 +111,11 @@ A common \code{R}--\code{Julia} interface syntax.
 \section{Helpers}{
 The following helper routines are also exported:
 \itemize{
-\item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}};
 \item \code{\link[=julia_pkg_activate]{julia_pkg_activate()}} runs \code{Pkg.activate()};
-\item \code{\link[=julia_pkg_add]{julia_pkg_add()}} runs \code{Pkg.add()};
+\item \code{\link[=julia_pkg_add]{julia_pkg_add()}} and \code{\link[=julia_pkg_update]{julia_pkg_update()}} run \code{Pkg.add()} and \code{Pkg.update()};
+\item \code{\link[=julia_pkg_installed]{julia_pkg_installed()}} checks if a package is installed (\code{TRUE}/\code{FALSE});
+\item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}};
+\item \code{\link[=julia_defined]{julia_defined()}} checks if an object is defines (\code{TRUE}/\code{FALSE});
 \item \code{\link[=julia_println]{julia_println()}} runs \code{println()};
 \item \code{\link[=julia_save]{julia_save()}} and \code{\link[=julia_load]{julia_load()}} run \verb{using JLD2} plus \verb{@save \{file\} \{name\}} or \verb{@load \{file\} \{name\}}:
 \itemize{

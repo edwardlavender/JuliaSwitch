@@ -59,15 +59,17 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 - For selected operations, helper functions are provided:
 
   - `julia_pkg_activate()` activates a local environment;
-  - `julia_pkg_add()` adds packages;
-  - `julia_using()` and `julia_import()` load and import packages;
-  - `julia_include()` sources `Julia` scripts;
+  - `julia_pkg_add()` and `julia_pkg_update()` add/update package(s);
+  - `julia_pkg_installed()` checks if package(s) are installed;
+  - `julia_using()` and `julia_import()` load and import package(s);
+  - `julia_include()` sources a `Julia` script;
+  - `julia_defined()` checks if an object is defined;
   - `julia_println()` prints lines;
-  - `julia_save()` and `julia_load()` save and load files;
+  - `julia_save()` and `julia_load()` save and load a file;
 
-- To push objects from `R` to `Julia`, use `julia_push()`.
+- To push an object from `R` to `Julia`, use `julia_push()`.
 
-- To pull objects back from `Julia` to `R`, use `julia_pull()`.
+- To pull an object back from `Julia` to `R`, use `julia_pull()`.
 
 - Stop a `Julia` session via `julia_stop()`.
 
@@ -75,10 +77,11 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 
 `JuliaSwitch` uses `S3` methods to handle object transfers between `R`
 and `Julia`. Method dispatch is implemented by the internal functions
-`julia_send()`, `juliaSend()` and `juliaReceive()`.The default methods
-call the relevant `JuliaCall` or `JuliaConnectoR` routines. Special
-cases (such as `data.frame`s and `terra::SpatRaster`s) are handled by
-custom methods. Specify additional methods for other special cases.
+`julia_send()`, `juliaSend()`, `julia_receiver()` and
+`juliaReceive()`.The default methods call the relevant `JuliaCall` or
+`JuliaConnectoR` routines. Special cases (such as `data.frame`s and
+`terra::SpatRaster`s) are handled by custom methods. Specify additional
+methods for other special cases.
 
 # Citation
 

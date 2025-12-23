@@ -5,7 +5,7 @@
 #' @param name,value For [`julia_push()`]:
 #' * `name` is a `character` that defines the object name in `Julia`.
 #' * `value` is the `R` object.
-#' @param pkg A `character` that defines the name of a `Julia` package.
+#' @param pkg A `character` vector of `Julia` package name(s).
 #' @param s A `character` that specifies the directory of a `Julia` environment.
 #' @param string A `character` string of `Julia` code.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
@@ -33,9 +33,11 @@
 #' # Helpers
 #'
 #' The following helper routines are also exported:
-#' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`;
 #' * [`julia_pkg_activate()`] runs `Pkg.activate()`;
-#' * [`julia_pkg_add()`] runs `Pkg.add()`;
+#' * [`julia_pkg_add()`] and [`julia_pkg_update()`] run `Pkg.add()` and `Pkg.update()`;
+#' * [`julia_pkg_installed()`] checks if a package is installed (`TRUE`/`FALSE`);
+#' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`;
+#' * [`julia_defined()`] checks if an object is defines (`TRUE`/`FALSE`);
 #' * [`julia_println()`] runs `println()`;
 #' * [`julia_save()`] and [`julia_load()`] run `using JLD2` plus `@save {file} {name}` or `@load {file} {name}`:
 #'    - [`julia_save()`] returns the absolute file path for `file`;
@@ -146,6 +148,15 @@ julia_pull <- function(...) {
 #' @rdname JuliaSwitch-interface
 #' @export
 
+# Check if Julia object defined
+julia_defined <- function(name) {
+  stopifnot(inherits(name, "character"))
+  julia_pull(glue('isdefined(Main, Symbol("{name}"))'))
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
 julia_using <- function(pkg) {
   sapply(pkg, function(p) {
     julia_cmd_line(glue('using {p}'))
@@ -177,8 +188,48 @@ julia_pkg_activate <- function(s = ".") {
 
 julia_pkg_add <- function(pkg) {
   julia_cmd_line('import Pkg')
-  julia_cmd_line(glue('Pkg.add("{pkg}")'))
+  sapply(pkg, function(p) {
+    julia_cmd_line(glue('Pkg.add("{p}")'))
+  })
   nothing()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_pkg_update <- function(pkg) {
+  julia_cmd_line('import Pkg')
+  sapply(pkg, function(p) {
+    julia_cmd_line(glue('Pkg.update("{p}")'))
+  })
+  nothing()
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+# Check if Julia package(s) are installed (TRUE/FALSE)
+julia_pkg_installed <- function(pkg) {
+  # Code modified from JuliaCall/setup.jl function installed(name)
+  # TO DO Define inst/julia/JuliaSwitch.jl module with functions that are sourced in setup
+  julia_cmd_line('import Pkg')
+  julia_push("names", pkg)
+  julia_cmd_block(
+    '
+    installed = Vector{Bool}(undef, length(names))
+    deps = values(Pkg.dependencies())
+    for (i, name) in pairs(names)
+      installed[i] = false
+        for p in deps
+          if p.name == name && p.is_direct_dep
+            installed[i] = true
+            break
+          end
+      end
+    end
+    '
+  )
+  julia_pull('installed')
 }
 
 #' @rdname JuliaSwitch-interface
