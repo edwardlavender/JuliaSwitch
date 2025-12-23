@@ -8,6 +8,7 @@
 #' @param pkg A `character` vector of `Julia` package name(s).
 #' @param s A `character` that specifies the directory of a `Julia` environment.
 #' @param string A `character` string of `Julia` code.
+#' @param fname A `character` string that defines the name of a `Julia` function.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
 #' @details
 #'
@@ -39,6 +40,7 @@
 #' * [`julia_using()`] and [`julia_import()`] runs `using {pkg}` and `import {Pkg}`;
 #' * [`julia_defined()`] checks if an object is defines (`TRUE`/`FALSE`);
 #' * [`julia_println()`] runs `println()`;
+#' * [`julia_helpfile()`] prints the help file for a function;
 #' * [`julia_save()`] and [`julia_load()`] run `using JLD2` plus `@save {file} {name}` or `@load {file} {name}`:
 #'    - [`julia_save()`] returns the absolute file path for `file`;
 #'    - [`julia_load()`] returns `invisible(NULL)`;
@@ -237,6 +239,14 @@ julia_pkg_installed <- function(pkg) {
 
 julia_println <- function(name) {
   julia_cmd_line(glue('println({name})'))
+}
+
+#' @rdname JuliaSwitch-interface
+#' @export
+
+julia_helpfile <- function(fname) {
+  julia_cmd_line('import Markdown')
+  julia_cmd_line(glue('println(Markdown.plain(@doc {fname}))'))
 }
 
 #' @rdname JuliaSwitch-interface

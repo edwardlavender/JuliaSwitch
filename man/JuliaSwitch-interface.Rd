@@ -19,6 +19,7 @@
 \alias{julia_pkg_update}
 \alias{julia_pkg_installed}
 \alias{julia_println}
+\alias{julia_helpfile}
 \alias{julia_save}
 \alias{julia_load}
 \title{Julia interface}
@@ -57,6 +58,8 @@ julia_pkg_installed(pkg)
 
 julia_println(name)
 
+julia_helpfile(fname)
+
 julia_save(name, file = name)
 
 julia_load(file, name = basename(tools::file_path_sans_ext(file)))
@@ -79,6 +82,8 @@ julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 \item{pkg}{A \code{character} vector of \code{Julia} package name(s).}
 
 \item{s}{A \code{character} that specifies the directory of a \code{Julia} environment.}
+
+\item{fname}{A \code{character} string that defines the name of a \code{Julia} function.}
 }
 \description{
 A common \code{R}--\code{Julia} interface syntax.
@@ -117,6 +122,7 @@ The following helper routines are also exported:
 \item \code{\link[=julia_using]{julia_using()}} and \code{\link[=julia_import]{julia_import()}} runs \verb{using \{pkg\}} and \verb{import \{Pkg\}};
 \item \code{\link[=julia_defined]{julia_defined()}} checks if an object is defines (\code{TRUE}/\code{FALSE});
 \item \code{\link[=julia_println]{julia_println()}} runs \code{println()};
+\item \code{\link[=julia_helpfile]{julia_helpfile()}} prints the help file for a function;
 \item \code{\link[=julia_save]{julia_save()}} and \code{\link[=julia_load]{julia_load()}} run \verb{using JLD2} plus \verb{@save \{file\} \{name\}} or \verb{@load \{file\} \{name\}}:
 \itemize{
 \item \code{\link[=julia_save]{julia_save()}} returns the absolute file path for \code{file};

@@ -56,6 +56,7 @@ devtools::install_github("edwardlavender/JuliaSwitch",
     - `julia_include()` sources a `Julia` script;
     - `julia_defined()` checks if an object is defined;
     - `julia_println()` prints lines;
+    - `julia_helpfile()` prints a help file;
     - `julia_save()` and `julia_load()` save and load a file;
 
 * To push an object from `R` to `Julia`, use `julia_push()`.

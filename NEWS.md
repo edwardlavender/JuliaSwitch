@@ -1,9 +1,10 @@
 # JuliaSwitch 0.0.2
 
 * Export new functions:
-    - `julia_cmd()` to run arbitrary code;
-    - `julia_pkg_installed()` to check if Julia package(s) are installed;
-    - `julia_pkg_update()`, to update Julia package(s);
+    - `julia_cmd()`, to run arbitrary code;
+    - `julia_pkg_installed()`, to check if package(s) are installed;
+    - `julia_pkg_update()`, to update package(s);
+    - `julia_helpfile()`, to print a help file;
     
 * Improve flexibility:
     - `julia_pkg_*()` functions support multiple packages;
