@@ -132,7 +132,13 @@ juliaReceive.DateTime <- function(x) {
 #' @keywords internal
 
 juliaReceive.DataFrame <- function(x) {
-  as.data.frame(juliaEval(x))
+  # Use juliaReceive() on each column & bind
+  # This ensures appropriate methods e.g., for timestamps get dispatched
+  # (as.data.frame(juliaEval(x) only works if the dataframe does not contain timestamps)
+  headings <- juliaEval(glue("Base.names({x})"))
+  columns <- lapply(headings, \(heading) juliaReceive(glue("{x}[:, :{heading}]")))
+  names(columns) <- headings
+  as.data.frame(dplyr::bind_cols(columns))
 }
 
 #' @rdname JuliaConnectoR-wrappers

@@ -215,16 +215,16 @@ julia_pkg_installed <- function(pkg) {
   # Code modified from JuliaCall/setup.jl function installed(name)
   # TO DO Define inst/julia/JuliaSwitch.jl module with functions that are sourced in setup
   julia_cmd_line('import Pkg')
-  # Push names & force vector
-  julia_push("names", pkg)
+  # Push package names & force vector
+  julia_push("package_names", pkg)
   if (length(pkg) == 1L) {
-    julia_cmd_line('names = [names]')
+    julia_cmd_line('package_names = [package_names]')
   }
   julia_cmd_block(
     '
-    installed = Vector{Bool}(undef, length(names))
+    installed = Vector{Bool}(undef, length(package_names))
     deps = values(Pkg.dependencies())
-    for (i, name) in pairs(names)
+    for (i, name) in pairs(package_names)
       installed[i] = false
         for p in deps
           if p.name == name && p.is_direct_dep
