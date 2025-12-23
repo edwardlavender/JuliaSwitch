@@ -84,9 +84,9 @@ julia_stop <- function() {
 # Run arbitrary (one line or multi-line) Julia commands
 julia_cmd <- function(string){
   if (str_multiline(string)) {
-    julia_cmd_line(string)
-  } else {
     julia_cmd_block(string)
+  } else {
+    julia_cmd_line(string)
   }
   nothing()
 }

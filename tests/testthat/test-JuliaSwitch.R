@@ -20,6 +20,21 @@ test_that("JuliaSwitch works", {
       julia_pkg_activate(temp)
       julia_pkg_add("DataFrames")
 
+      #### Test julia_cmd
+      # Test single line
+      julia_cmd('x = 1')
+      expect_equal(1, julia_pull("x"))
+      julia_cmd(
+        '
+        a = 1
+        b = 2
+        c = 3
+        '
+      )
+      expect_equal(1, julia_pull("a"))
+      expect_equal(2, julia_pull("b"))
+      expect_equal(3, julia_pull("c"))
+
       #### Test julia_pkg_installed()
       expect_true(julia_pkg_installed("DataFrames"))
       expect_false(julia_pkg_installed("blah"))
@@ -49,6 +64,9 @@ test_that("JuliaSwitch works", {
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = TRUE)
       expect_equal(d, julia_pull("d"), ignore_attr = TRUE)
+
+      #### Test julia_push() and julia_pull() handle Dictionaries
+      # TO DO
 
       # Clean up
       julia_stop()
