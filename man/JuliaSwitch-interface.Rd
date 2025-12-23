@@ -56,7 +56,7 @@ julia_pkg_update(pkg)
 
 julia_pkg_installed(pkg)
 
-julia_println(name)
+julia_println(string)
 
 julia_helpfile(fname)
 
@@ -69,7 +69,7 @@ julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 
 \item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
 
-\item{string}{A \code{character} string of \code{Julia} code.}
+\item{string}{A \code{character} string of \code{Julia} code (or the name of an object for \code{\link[=julia_println]{julia_println()}}.}
 
 \item{file}{For \code{\link[=julia_include]{julia_include()}}, \code{file} is a \code{character} string that defines the name of a \code{Julia} script to source.}
 

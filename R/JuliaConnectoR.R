@@ -50,10 +50,30 @@ juliaSend.default <- function(name, value) {
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
+# Send POSIXct vectors to Julia
+juliaSend.POSIXct <- function(name, value) {
+  juliaEval("using Dates")
+  juliaSend(name, as.numeric(value))
+  julia_cmd(glue("{name} = Dates.unix2datetime.({name})"))
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @keywords internal
+
 juliaSend.data.frame <- function(name, value) {
   juliaEval("using DataFrames")
-  value <- juliaCall("DataFrame", value)
-  juliaSend(name, value)
+  # Send individual columns
+  # - For each column, an appropriate juliaSend method is used
+  # - This handles timestamp columns
+  for (col in names(value)) {
+    juliaSend(col, value[[col]])
+  }
+  # Build DataFrame (correct Julia string syntax)
+  cols <- paste0(
+    "Symbol(\"", names(value), "\") => ", names(value),
+    collapse = ", "
+  )
+  julia_cmd(glue::glue("{name} = DataFrame({cols})"))
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -67,7 +87,8 @@ juliaSend.SpatRaster <- function(name, value) {
 #' @keywords internal
 
 juliaClass <- function(x) {
-  type <- juliaEval(glue('string(nameof(typeof({x})))'))
+  # type <- juliaEval(glue('string(nameof(typeof({x})))'))
+  type <- juliaEval(glue('string(typeof({x}))'))
   structure(list(), class = type)
 }
 
@@ -83,6 +104,28 @@ juliaReceive <- function(x) {
 
 juliaReceive.default <- function(x) {
   juliaEval(x)
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @keywords internal
+
+# Receive a single DateTime from Julia
+juliaReceive.DateTime <- function(x) {
+  julia_using("Dates")
+  x <- juliaEval(glue('Dates.datetime2unix({x})'))
+  as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @noRd
+
+# Receive a Vector of Date Times
+# * We need @noRd for this as Vector{DateTime} causes issues
+# * We use Dates.datetime2unix vectorised
+`juliaReceive.Vector{DateTime}` <- function(x) {
+  julia_using("Dates")
+  x <- juliaEval(glue('Dates.datetime2unix.({x})'))
+  as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
 }
 
 #' @rdname JuliaConnectoR-wrappers

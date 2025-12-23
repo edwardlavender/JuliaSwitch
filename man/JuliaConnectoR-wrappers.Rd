@@ -5,11 +5,13 @@
 \alias{juliaInitialise}
 \alias{juliaSend}
 \alias{juliaSend.default}
+\alias{juliaSend.POSIXct}
 \alias{juliaSend.data.frame}
 \alias{juliaSend.SpatRaster}
 \alias{juliaClass}
 \alias{juliaReceive}
 \alias{juliaReceive.default}
+\alias{juliaReceive.DateTime}
 \alias{juliaReceive.DataFrame}
 \alias{juliaTerminate}
 \title{\code{JuliaConnectoR} wrappers}
@@ -20,6 +22,8 @@ juliaSend(name, value)
 
 \method{juliaSend}{default}(name, value)
 
+\method{juliaSend}{POSIXct}(name, value)
+
 \method{juliaSend}{data.frame}(name, value)
 
 \method{juliaSend}{SpatRaster}(name, value)
@@ -29,6 +33,8 @@ juliaClass(x)
 juliaReceive(x)
 
 \method{juliaReceive}{default}(x)
+
+\method{juliaReceive}{DateTime}(x)
 
 \method{juliaReceive}{DataFrame}(x)
 

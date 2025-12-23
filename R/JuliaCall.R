@@ -48,7 +48,8 @@ julia_send.SpatRaster <- function(name, value) {
 #' @keywords internal
 
 julia_class <- function(x) {
-  type <- julia_eval(glue('string(nameof(typeof({x})))'))
+  # type <- julia_eval(glue('string(nameof(typeof({x})))'))
+  type <- julia_eval(glue('string(typeof({x}))'))
   structure(list(), class = type)
 }
 

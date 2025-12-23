@@ -7,7 +7,7 @@
 #' * `value` is the `R` object.
 #' @param pkg A `character` vector of `Julia` package name(s).
 #' @param s A `character` that specifies the directory of a `Julia` environment.
-#' @param string A `character` string of `Julia` code.
+#' @param string A `character` string of `Julia` code (or the name of an object for [`julia_println()`].
 #' @param fname A `character` string that defines the name of a `Julia` function.
 #' @param ... Arguments passed to `JuliaCall` or `JuliaConnectoR` routines.
 #' @details
@@ -241,8 +241,9 @@ julia_pkg_installed <- function(pkg) {
 #' @rdname JuliaSwitch-interface
 #' @export
 
-julia_println <- function(name) {
-  julia_cmd_line(glue('println({name})'))
+# Print an object or the output of a line of Julia code
+julia_println <- function(string) {
+  julia_cmd_line(glue('println({string})'))
 }
 
 #' @rdname JuliaSwitch-interface
