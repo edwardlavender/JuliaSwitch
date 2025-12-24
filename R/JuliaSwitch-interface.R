@@ -76,6 +76,9 @@ julia_start <- function(..., JULIA_PROJ) {
     julia_pkg_generate(JULIA_PROJ)
     julia_pkg_activate(JULIA_PROJ)
   }
+  # Define helper functions
+  # * __assign_from_JuliaConnectoR__ is needed for julia_push()
+  julia_helpers()
   # Install (if needed) & import required packages
   # * Handle required Julia packages: DataFrames, Dates, GeoArrays, OrderedDict
   julia_pkg_setup(.pkg_install = NULL,

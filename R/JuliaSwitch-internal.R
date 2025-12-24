@@ -207,6 +207,20 @@ julia_pkg_setup <- function(.pkg_install,
 }
 
 
+# Load Julia helper functions
+julia_helpers <- function() {
+  if (getOption("JuliaSwitch.backend") == "JuliaConnectoR") {
+    julia_cmd(
+      '
+    function __assign_from_JuliaConnectoR__(name::String, value)
+      Core.eval(Main, Expr(:(=), Symbol(name), value))
+      return nothing
+    end
+  ')
+  }
+}
+
+
 # Assign SpatRasters
 julia_send_SpatRaster <- function(name, value, command) {
   # Checks
@@ -224,6 +238,7 @@ julia_send_SpatRaster <- function(name, value, command) {
   command(glue::glue('{name} = GeoArrays.read("{file}");'))
   nothing()
 }
+
 
 # Parse Julia 'classes' into syntactic R names
 julia_class_parse <- function(string) {

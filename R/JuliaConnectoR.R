@@ -26,7 +26,11 @@ NULL
 #' @keywords internal
 
 juliaInitialise <- function(...) {
-  startJuliaServer(...)
+  # Start server
+  julia <- startJuliaServer(...)
+  # Load __r_assign__
+  # (Used to send objects from R to Julia)
+  invisible(julia)
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -40,11 +44,12 @@ juliaSend <- function(name, value) {
 #' @keywords internal
 
 juliaSend.default <- function(name, value) {
-  assign_expr <- juliaCall("Expr",
-                           juliaCall("Symbol", "="),
-                           juliaCall("Symbol", name),
-                           value)
-  juliaCall("eval", assign_expr)
+  # assign_expr <- juliaCall("Expr",
+  #                          juliaCall("Symbol", "="),
+  #                          juliaCall("Symbol", name),
+  #                          value)
+  # juliaCall("eval", assign_expr)
+  juliaCall("__assign_from_JuliaConnectoR__", name, value)
 }
 
 #' @rdname JuliaConnectoR-wrappers
