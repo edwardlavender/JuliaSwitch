@@ -144,7 +144,9 @@ juliaReceive <- function(x) {
 #' @keywords internal
 
 juliaReceive.default <- function(x) {
-  juliaEval(x)
+  x |>
+    juliaEval() |>
+    drop_attr_JuliaConnectoR()
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -165,20 +167,29 @@ juliaReceive.DateTime <- function(x) {
 juliaReceive.VectorDateTime <- function(x) {
   julia_import("Dates")
   x <- juliaEval(glue('Dates.datetime2unix.({x})'))
-  as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
+  x <- as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
+  drop_attr_JuliaConnectoR(x)
 }
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
 
 juliaReceive.DataFrame <- function(x) {
+
   # Use juliaReceive() on each column & bind
   # This ensures appropriate methods e.g., for timestamps get dispatched
   # (as.data.frame(juliaEval(x) only works if the dataframe does not contain timestamps)
+
+  # Collect columns in a list
   headings <- juliaEval(glue("Base.names({x})"))
   columns <- lapply(headings, \(heading) juliaReceive(glue("{x}[:, :{heading}]")))
   names(columns) <- headings
-  as.data.frame(dplyr::bind_cols(columns))
+
+  # Build data.frame
+  columns |>
+    dplyr::bind_cols() |>
+    as.data.frame() |>
+    drop_attr_JuliaConnectoR()
 }
 
 
@@ -199,12 +210,11 @@ juliaReceive.VectorAny <- function(x) {
 # Recursively handle NamedTuple objects
 juliaReceive.NamedTuple <- function(x) {
   nms <- juliaEval(glue("collect(String.(keys({x})))"))
-  stats::setNames(
-    lapply(nms, function(nm) {
-      juliaReceive(glue("getfield({x}, Symbol(\"{nm}\"))"))
-    }),
-    nms
-  )
+  lapply(nms, function(nm) {
+    juliaReceive(glue("getfield({x}, Symbol(\"{nm}\"))"))
+    }) |>
+    stats::setNames(nms) |>
+    drop_attr_JuliaConnectoR()
 }
 
 #' @rdname JuliaConnectoR-wrappers

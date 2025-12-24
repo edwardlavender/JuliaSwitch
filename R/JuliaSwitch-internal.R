@@ -244,3 +244,16 @@ julia_class_parse <- function(string) {
   }
 }
 
+# Drop the JuliaConnectoR attributes
+# * This attribute causes object from Julia to not match their R counterparts
+#   perfectly, which is an issue e.g., in tests with expect_equal()
+#   where ignore_attr = FALSE
+
+drop_attr_JuliaConnectoR <- function(x) {
+  for (att in c("JLDIM", "JLTYPE")) {
+    if (!is.null(attr(x, att, exact = TRUE))) {
+      attr(x, att) <- NULL
+    }
+  }
+  x
+}

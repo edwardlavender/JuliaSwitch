@@ -63,14 +63,14 @@ test_that("JuliaSwitch works", {
       d <- data.frame(timestamp = timeline[1], timestep = 1)
       julia_push("d", d)
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
-      expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = TRUE)
-      expect_equal(d, julia_pull("d"), ignore_attr = TRUE)
+      expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
+      expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
       # Test for a multi-row data.frame
       d <- data.frame(timestamp = timeline[1:5], timestep = 1:5)
       julia_push("d", d)
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
-      expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = TRUE)
-      expect_equal(d, julia_pull("d"), ignore_attr = TRUE)
+      expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
+      expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
 
       #### Test julia_push() handles lists
 
