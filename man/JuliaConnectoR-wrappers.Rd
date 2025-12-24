@@ -13,7 +13,10 @@
 \alias{juliaReceive}
 \alias{juliaReceive.default}
 \alias{juliaReceive.DateTime}
+\alias{juliaReceive.VectorDateTime}
 \alias{juliaReceive.DataFrame}
+\alias{juliaReceive.VectorAny}
+\alias{juliaReceive.NamedTuple}
 \alias{juliaTerminate}
 \title{\code{JuliaConnectoR} wrappers}
 \usage{
@@ -39,7 +42,13 @@ juliaReceive(x)
 
 \method{juliaReceive}{DateTime}(x)
 
+\method{juliaReceive}{VectorDateTime}(x)
+
 \method{juliaReceive}{DataFrame}(x)
+
+\method{juliaReceive}{VectorAny}(x)
+
+\method{juliaReceive}{NamedTuple}(x)
 
 juliaTerminate()
 }

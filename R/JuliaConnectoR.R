@@ -80,23 +80,40 @@ juliaSend.data.frame <- function(name, value) {
 #' @keywords internal
 
 juliaSend.list <- function(name, value) {
-  # Handle unnamed lists automatically -> Any[]
+
+  # Send unnamed lists a Any[] (to match JuliaCall)
   # (This behaviour matches JuliaCall)
   nms <- names(value)
   if (is.null(nms)) {
-    juliaSend.default(name, value)
-    return(nothing())
+    # JuliaConnectoR handles empty lists as Any[] automatically
+    if (length(value) == 0L) {
+      juliaSend.default(name, value)
+    } else {
+      # Otherwise, use an appropriate juliaSend method e.g., for a data.frame
+      julia_cmd_line(glue("{name} = Vector{{Any}}()"))
+      for (i in seq_along(value)) {
+        tmp <- paste0(name, "_", i)
+        juliaSend(tmp, value[[i]])
+        julia_cmd_line(glue("push!({name}, {tmp})"))
+      }
+    }
+
+  } else {
+
+    # Send named lists as OrderedCollections  (to match JuliaCall)
+    julia_import("OrderedCollections")
+    julia_cmd_line(glue("{name} = OrderedCollections.OrderedDict{{Symbol, Any}}()"))
+    for (i in seq_along(value)) {
+      key <- nms[i]
+      tmp <- paste0(name, "_", key)
+      juliaSend(tmp, value[[i]])
+      julia_cmd_line(glue("{name}[:{key}] = {tmp}"))
+    }
+
   }
-  # Use OrderedCollections for named lists (to match JuliaCall)
-  julia_import("OrderedCollections")
-  julia_cmd_line(glue("{name} = OrderedCollections.OrderedDict{{Symbol, Any}}()"))
-  for (i in seq_along(value)) {
-    key <- nms[i]
-    tmp <- paste0(name, "_", key)
-    juliaSend(tmp, value[[i]])
-    julia_cmd_line(glue("{name}[:{key}] = {tmp}"))
-  }
+
   nothing()
+
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -112,6 +129,7 @@ juliaSend.SpatRaster <- function(name, value) {
 juliaClass <- function(x) {
   # type <- juliaEval(glue('string(nameof(typeof({x})))'))
   type <- juliaEval(glue('string(typeof({x}))'))
+  type <- julia_class_parse(type)
   structure(list(), class = type)
 }
 
@@ -140,12 +158,11 @@ juliaReceive.DateTime <- function(x) {
 }
 
 #' @rdname JuliaConnectoR-wrappers
-#' @noRd
+#' @keywords internal
 
 # Receive a Vector of Date Times
-# * We need @noRd for this as Vector{DateTime} causes issues
 # * We use Dates.datetime2unix vectorised
-`juliaReceive.Vector{DateTime}` <- function(x) {
+juliaReceive.VectorDateTime <- function(x) {
   julia_import("Dates")
   x <- juliaEval(glue('Dates.datetime2unix.({x})'))
   as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
@@ -166,14 +183,28 @@ juliaReceive.DataFrame <- function(x) {
 
 
 #' @rdname JuliaConnectoR-wrappers
-#' @noRd
+#' @keywords internal
 
 # Recursively handle Vector{Any} objects
-`juliaReceive.Vector{Any}` <- function(x) {
+juliaReceive.VectorAny <- function(x) {
   n <- juliaEval(glue("length({x})"))
   lapply(seq_len(n), function(i) {
     juliaReceive(glue("{x}[{i}]"))
   })
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @keywords internal
+
+# Recursively handle NamedTuple objects
+juliaReceive.NamedTuple <- function(x) {
+  nms <- juliaEval(glue("collect(String.(keys({x})))"))
+  stats::setNames(
+    lapply(nms, function(nm) {
+      juliaReceive(glue("getfield({x}, Symbol(\"{nm}\"))"))
+    }),
+    nms
+  )
 }
 
 #' @rdname JuliaConnectoR-wrappers

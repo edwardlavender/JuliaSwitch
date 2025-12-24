@@ -224,3 +224,23 @@ julia_send_SpatRaster <- function(name, value, command) {
   command(glue::glue('{name} = GeoArrays.read("{file}");'))
   nothing()
 }
+
+# Parse Julia 'classes' into syntactic R names
+julia_class_parse <- function(string) {
+  if (startsWith(string, "DataFrames.DataFrame")) {
+    "DataFrame"
+  } else if (startsWith(string, "@NamedTuple")) {
+    "NamedTuple"
+  } else if (startsWith(string, "OrderedCollections.OrderedDict")) {
+    "OrderedDict"
+  } else if (startsWith(string, "Vector{Any}")) {
+    "VectorAny"
+  } else if (
+    startsWith(string, "Vector{DateTime}") ||
+    startsWith(string, "Vector{Dates.DateTime}")) {
+    "VectorDateTime"
+  } else {
+    string
+  }
+}
+

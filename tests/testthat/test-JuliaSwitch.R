@@ -79,20 +79,14 @@ test_that("JuliaSwitch works", {
       expect_true(julia_pull("a == Any[]"))
       expect_equal(julia_pull("a"), list())
 
-      ## Test unnamed list
+      ## Test simple unnamed list
       a <- list(1, c(1, 2))
       julia_push("a", a)
       expect_true(julia_pull("a == Any[1.0, [1.0, 2.0]]"))
       expect_equal(julia_pull("a"), a)
 
-      ## Test named list
-      a <- list(a = 1, b = c(1, 2))
-      julia_push("a", a)
-      expect_true(julia_pull("a == OrderedCollections.OrderedDict{Symbol, Any}(:a => 1.0, :b => [1.0, 2.0])"))
-      # expect_equal(julia_pull("a"), a) # TO DO Implement OrderedCollections.OrderedDict method
-
-      ## Test named list with DataFrames
-      # Define list in R & send to Julia
+      ## Test unnamed list of data.frames
+      # Define unnamed list & send to Julia
       ModelObsAcousticLogisTrunc <- data.frame(
         timestamp = as.POSIXct(c("2016-01-01 00:00:00", "2016-01-01 00:00:00"), tz = "UTC"),
         obs = c(0L, 0L),
@@ -110,6 +104,47 @@ test_that("JuliaSwitch works", {
         depth_shallow_eps = c(10, 10),
         depth_deep_eps = c(10, 10)
       )
+      yobs <- list(ModelObsAcousticLogisTrunc, ModelObsDepthUniformSeabed)
+      julia_push("yobs_vect", yobs)
+      julia_println("yobs_vect")
+      # Define expected structure in Julia
+      julia_cmd(
+        '
+        yobs_vect_expected = [
+        DataFrame(
+            timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,0)],
+            obs = [0, 0],
+            sensor_id = [1, 2],
+            receiver_x = [709142.1, 698042.1],
+            receiver_y = [6266607.0, 6267507.0],
+            receiver_alpha = [4.0, 4.0],
+            receiver_beta = [-0.01, -0.01],
+            receiver_gamma = [750.0, 750.0]
+          ),
+          DataFrame(
+            timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,2)],
+            obs = [27.79555, 36.54936],
+            sensor_id = [1, 1],
+            depth_shallow_eps = [10.0, 10.0],
+            depth_deep_eps = [10.0, 10.0]
+          )
+        ]
+        '
+      )
+      # Expect match
+      # julia_println("yobs_vect_expected")
+      # julia_println("yobs_vect")
+      expect_true(julia_pull("yobs_vect == yobs_vect_expected"))
+
+
+      ## Test simple named list
+      a <- list(a = 1, b = c(1, 2))
+      julia_push("a", a)
+      expect_true(julia_pull("a == OrderedCollections.OrderedDict{Symbol, Any}(:a => 1.0, :b => [1.0, 2.0])"))
+      # expect_equal(julia_pull("a"), a) # TO DO Implement OrderedCollections.OrderedDict method
+
+      ## Test named list with DataFrames
+      # Define list in R & send to Julia
       yobs <- list(
         ModelObsAcousticLogisTrunc = ModelObsAcousticLogisTrunc,
         ModelObsDepthUniformSeabed = ModelObsDepthUniformSeabed)
@@ -173,7 +208,66 @@ test_that("JuliaSwitch works", {
       )
       expect_equal(x, julia_pull("x"))
 
-      # Clean up
+      #### Test julia_pull handles named tuples
+
+      ## Define NamedTuple in Julia
+      julia_cmd(
+        '
+      states = DataFrame(
+          path_id = [1, 1],
+          timestep = [1, 2],
+          timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,2)],
+          map_value = [34.1, 33.2],
+          x = [7.11e5, 7.10e5],
+          y = [6.26e6, 6.2601e6])
+
+
+      diagnostics = DataFrame(
+        timestep = [1, 2],
+        timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,2)],
+        ess = [31054.9, 29879.2],
+        maxlp = [-3.11, -2.99])
+
+      callstats = DataFrame(
+        timestamp = [DateTime(2025,12,24,15,7,55)],
+        routine = ["filter: forward"],
+        n_particle = [50000],
+        n_iter = [1],
+        loglik = [-418.9],
+        convergence = [true],
+        time = [1.44])
+
+      nt = (states = states, diagnostics = diagnostics, callstats = callstats)
+      ')
+
+      ## Define expected object in R
+      states <- data.frame(path_id = c(1L, 1L),
+                           timestep = c(1L, 2L),
+                           timestamp = as.POSIXct(
+                             c("2016-01-01 00:00:00", "2016-01-01 00:02:00"),
+                             tz = "UTC"),
+                           map_value = c(34.1, 33.2),
+                           x = c(711000, 710000),
+                           y = c(6260000, 6260100))
+      diagnostics <- data.frame(timestep = c(1L, 2L),
+                                timestamp = as.POSIXct(
+                                  c("2016-01-01 00:00:00", "2016-01-01 00:02:00"),
+                                  tz = "UTC"),
+                                ess = c(31054.9, 29879.2),
+                                maxlp = c(-3.11, -2.99))
+      callstats <- data.frame(timestamp = as.POSIXct("2025-12-24 15:07:55", tz = "UTC"),
+                              routine = "filter: forward",
+                              n_particle = 50000L,
+                              n_iter = 1L,
+                              loglik = -418.9,
+                              convergence = TRUE,
+                              time = 1.44)
+      pf_particles <- list(states = states,
+                           diagnostics = diagnostics,
+                           callstats = callstats)
+      expect_equal(pf_particles, julia_pull("nt"), ignore_attr = TRUE)
+
+      #### Clean up
       julia_stop()
       unlink(temp, recursive = TRUE)
 
@@ -182,4 +276,3 @@ test_that("JuliaSwitch works", {
   }
 
 })
-
