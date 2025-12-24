@@ -1,6 +1,8 @@
 #' @title Julia interface
 #' @description A common `R`--`Julia` interface syntax.
 #' @param backend A `character` string that defines the `Julia` backend (`"JuliaCall"` or `"JuliaConnectoR"`).
+#' @param JULIA_PROJ (optional) `Julia` options, provided as function arguments, global options or environment variables.
+#' * `JULIA_PROJ`---A `character` string that defines the directory of a `Julia` Project. If unspecified, the default environment (e.g., `~/.julia/environments/v1.10/Project.toml`) is used with a [`message`] instead of a local `Julia` project.
 #' @param file For [`julia_include()`], `file` is a `character` string that defines the name of a `Julia` script to source.
 #' @param name,value For [`julia_push()`]:
 #' * `name` is a `character` that defines the object name in `Julia`.
@@ -64,9 +66,23 @@ julia_backend <- function(backend = c("JuliaCall", "JuliaConnectoR")) {
 #' @export
 
 # Start Julia
-julia_start <- function(...) {
+julia_start <- function(..., JULIA_PROJ) {
+  # Start Julia
   .julia_start <- julia_switch(julia_initialise, juliaInitialise)
-  .julia_start(...)
+  julia <- .julia_start(...)
+  # (optional) Use local Julia project
+  JULIA_PROJ <- julia_proj_path(JULIA_PROJ)
+  if (!is.null(JULIA_PROJ)) {
+    julia_pkg_generate(JULIA_PROJ)
+    julia_pkg_activate(JULIA_PROJ)
+  }
+  # Install (if needed) & import required packages
+  # * Handle required Julia packages: DataFrames, Dates, GeoArrays, OrderedDict
+  julia_pkg_setup(.pkg_install = NULL,
+                  .pkg_update = NULL,
+                  .pkg_load = NULL)
+  # (optional) TO DO Add julia_connect() functionality e.g., threads here
+  invisible(julia)
 }
 
 #' @rdname JuliaSwitch-interface
@@ -191,7 +207,13 @@ julia_pkg_activate <- function(s = ".") {
 julia_pkg_add <- function(pkg) {
   julia_cmd_line('import Pkg')
   sapply(pkg, function(p) {
+    # It appears Pkg.add() may delete the temporary directory
+    # This causes hard to debug issues with code
+    # E.g., if a tempfile() is later used
+    # Error in file(con, "w") : cannot open the connection ...
+    # Hence we recreate tempdir() after this code
     julia_cmd_line(glue('Pkg.add("{p}")'))
+    tempdir(check = TRUE)
   })
   nothing()
 }
@@ -203,6 +225,7 @@ julia_pkg_update <- function(pkg) {
   julia_cmd_line('import Pkg')
   sapply(pkg, function(p) {
     julia_cmd_line(glue('Pkg.update("{p}")'))
+    tempdir(check = TRUE)
   })
   nothing()
 }

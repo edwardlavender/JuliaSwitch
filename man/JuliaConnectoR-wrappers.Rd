@@ -7,6 +7,7 @@
 \alias{juliaSend.default}
 \alias{juliaSend.POSIXct}
 \alias{juliaSend.data.frame}
+\alias{juliaSend.list}
 \alias{juliaSend.SpatRaster}
 \alias{juliaClass}
 \alias{juliaReceive}
@@ -25,6 +26,8 @@ juliaSend(name, value)
 \method{juliaSend}{POSIXct}(name, value)
 
 \method{juliaSend}{data.frame}(name, value)
+
+\method{juliaSend}{list}(name, value)
 
 \method{juliaSend}{SpatRaster}(name, value)
 

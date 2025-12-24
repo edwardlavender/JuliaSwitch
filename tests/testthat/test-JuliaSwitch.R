@@ -9,16 +9,23 @@ test_that("JuliaSwitch works", {
     lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
 
       #### Set Julia backend
-      # julia_backend("JuliaCall")
-      # julia_backend("JuliaConnectoR")
+      # backend <- "JuliaCall"
+      # julia_backend(backend)
+      # backend <- "JuliaConnectoR"
       julia_backend(backend)
 
       #### Start Julia
       # Start Julia, activate local environment & add DataFrames package
       dir.create(temp, showWarnings = FALSE)
-      julia <- julia_start()
+      julia <- julia_start(JULIA_PROJ = temp)
       julia_pkg_activate(temp)
-      julia_pkg_add("DataFrames")
+      # julia_pkg_add("DataFrames")
+      # julia_pkg_add("Dates")
+      # julia_pkg_add("OrderedCollections")
+      julia_using("DataFrames")
+      julia_using("Dates")
+      julia_using("OrderedCollections")
+
 
       #### Test julia_cmd
       # Test single line
@@ -65,8 +72,106 @@ test_that("JuliaSwitch works", {
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = TRUE)
       expect_equal(d, julia_pull("d"), ignore_attr = TRUE)
 
-      #### Test julia_push() and julia_pull() handle Dictionaries
-      # TO DO
+      #### Test julia_push() handles lists
+
+      ## Test empty list
+      julia_push("a", list())
+      expect_true(julia_pull("a == Any[]"))
+      expect_equal(julia_pull("a"), list())
+
+      ## Test unnamed list
+      a <- list(1, c(1, 2))
+      julia_push("a", a)
+      expect_true(julia_pull("a == Any[1.0, [1.0, 2.0]]"))
+      expect_equal(julia_pull("a"), a)
+
+      ## Test named list
+      a <- list(a = 1, b = c(1, 2))
+      julia_push("a", a)
+      expect_true(julia_pull("a == OrderedCollections.OrderedDict{Symbol, Any}(:a => 1.0, :b => [1.0, 2.0])"))
+      # expect_equal(julia_pull("a"), a) # TO DO Implement OrderedCollections.OrderedDict method
+
+      ## Test named list with DataFrames
+      # Define list in R & send to Julia
+      ModelObsAcousticLogisTrunc <- data.frame(
+        timestamp = as.POSIXct(c("2016-01-01 00:00:00", "2016-01-01 00:00:00"), tz = "UTC"),
+        obs = c(0L, 0L),
+        sensor_id = c(1L, 2L),
+        receiver_x = c(709142.1, 698042.1),
+        receiver_y = c(6266607.0, 6267507.0),
+        receiver_alpha = c(4, 4),
+        receiver_beta = c(-0.01, -0.01),
+        receiver_gamma = c(750, 750)
+      )
+      ModelObsDepthUniformSeabed <- data.frame(
+        timestamp = as.POSIXct(c("2016-01-01 00:00:00", "2016-01-01 00:02:00"), tz = "UTC"),
+        obs = c(27.79555, 36.54936),
+        sensor_id = c(1L, 1L),
+        depth_shallow_eps = c(10, 10),
+        depth_deep_eps = c(10, 10)
+      )
+      yobs <- list(
+        ModelObsAcousticLogisTrunc = ModelObsAcousticLogisTrunc,
+        ModelObsDepthUniformSeabed = ModelObsDepthUniformSeabed)
+      julia_push("yobs_vect", yobs)
+      # Define expected structure in Julia
+      julia_cmd(
+        '
+        yobs_vect_expected = OrderedCollections.OrderedDict{Symbol,Any}(
+          :ModelObsAcousticLogisTrunc => DataFrame(
+            timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,0)],
+            obs = [0, 0],
+            sensor_id = [1, 2],
+            receiver_x = [709142.1, 698042.1],
+            receiver_y = [6266607.0, 6267507.0],
+            receiver_alpha = [4.0, 4.0],
+            receiver_beta = [-0.01, -0.01],
+            receiver_gamma = [750.0, 750.0]
+          ),
+          :ModelObsDepthUniformSeabed => DataFrame(
+            timestamp = [DateTime(2016,1,1,0,0), DateTime(2016,1,1,0,2)],
+            obs = [27.79555, 36.54936],
+            sensor_id = [1, 1],
+            depth_shallow_eps = [10.0, 10.0],
+            depth_deep_eps = [10.0, 10.0]
+          )
+        )
+        '
+      )
+      # Expect match
+      # julia_println("yobs_vect_expected")
+      # julia_println("yobs_vect")
+      expect_true(julia_pull("yobs_vect == yobs_vect_expected"))
+
+
+      #### Test julia_pull() handles lists
+
+      ## Test nested list of dataframes
+      # Define nested list in R
+      df1 <- data.frame(timestamp = as.POSIXct(c("2020-01-01 00:00:00",
+                                                 "2020-01-01 00:01:00",
+                                                 "2020-01-01 00:02:00"),
+                                               tz = "UTC"),
+                        obs = c(0, 1, 0))
+      df2 <- data.frame(timestamp = as.POSIXct(c("2020-01-01 00:00:00",
+                                                 "2020-01-01 00:02:00",
+                                                 "2020-01-01 00:04:00"),
+                                               tz = "UTC"),
+                        value = c(10, 20, 30))
+      x <- list(list(df1), list(df2))
+      # Define equivalent nested Vector in Julia
+      julia_cmd(
+        '
+        df1 = DataFrame(timestamp = DateTime(2020):Minute(1):DateTime(2020,1,1,0,2),
+                        obs = [0, 1, 0])
+        df2 = DataFrame(timestamp = DateTime(2020):Minute(2):DateTime(2020,1,1,0,4),
+                        value = [10.0, 20.0, 30.0])
+        x = Vector{Any}(undef, 2)
+        x[1] = Vector{Any}([df1])
+        x[2] = Vector{Any}([df2])
+        '
+      )
+      expect_equal(x, julia_pull("x"))
 
       # Clean up
       julia_stop()

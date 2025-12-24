@@ -20,10 +20,7 @@ if (curl::has_internet()) {
     #### Start Julia
     # Start Julia, activate local environment & add DataFrames package
     dir.create(temp, showWarnings = FALSE)
-    julia <- julia_start()
-    julia_pkg_activate(temp)
-    julia_pkg_add("DataFrames")
-    julia_pkg_add("GeoArrays")
+    julia <- julia_start(JULIA_PROJ = temp)
 
     #### Run one-line commands
     julia_cmd_line("x = 1")

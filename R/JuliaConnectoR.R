@@ -52,7 +52,7 @@ juliaSend.default <- function(name, value) {
 
 # Send POSIXct vectors to Julia
 juliaSend.POSIXct <- function(name, value) {
-  juliaEval("using Dates")
+  juliaEval("import Dates")
   juliaSend(name, as.numeric(value))
   julia_cmd(glue("{name} = Dates.unix2datetime.({name})"))
 }
@@ -61,7 +61,7 @@ juliaSend.POSIXct <- function(name, value) {
 #' @keywords internal
 
 juliaSend.data.frame <- function(name, value) {
-  juliaEval("using DataFrames")
+  juliaEval("import DataFrames")
   # Send individual columns
   # - For each column, an appropriate juliaSend method is used
   # - This handles timestamp columns
@@ -74,6 +74,29 @@ juliaSend.data.frame <- function(name, value) {
     collapse = ", "
   )
   julia_cmd(glue::glue("{name} = DataFrame({cols})"))
+}
+
+#' @rdname JuliaConnectoR-wrappers
+#' @keywords internal
+
+juliaSend.list <- function(name, value) {
+  # Handle unnamed lists automatically -> Any[]
+  # (This behaviour matches JuliaCall)
+  nms <- names(value)
+  if (is.null(nms)) {
+    juliaSend.default(name, value)
+    return(nothing())
+  }
+  # Use OrderedCollections for named lists (to match JuliaCall)
+  julia_import("OrderedCollections")
+  julia_cmd_line(glue("{name} = OrderedCollections.OrderedDict{{Symbol, Any}}()"))
+  for (i in seq_along(value)) {
+    key <- nms[i]
+    tmp <- paste0(name, "_", key)
+    juliaSend(tmp, value[[i]])
+    julia_cmd_line(glue("{name}[:{key}] = {tmp}"))
+  }
+  nothing()
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -111,7 +134,7 @@ juliaReceive.default <- function(x) {
 
 # Receive a single DateTime from Julia
 juliaReceive.DateTime <- function(x) {
-  julia_using("Dates")
+  julia_import("Dates")
   x <- juliaEval(glue('Dates.datetime2unix({x})'))
   as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
 }
@@ -123,7 +146,7 @@ juliaReceive.DateTime <- function(x) {
 # * We need @noRd for this as Vector{DateTime} causes issues
 # * We use Dates.datetime2unix vectorised
 `juliaReceive.Vector{DateTime}` <- function(x) {
-  julia_using("Dates")
+  julia_import("Dates")
   x <- juliaEval(glue('Dates.datetime2unix.({x})'))
   as.POSIXct(x, origin = "1970-01-01", tz = "UTC")
 }
@@ -139,6 +162,18 @@ juliaReceive.DataFrame <- function(x) {
   columns <- lapply(headings, \(heading) juliaReceive(glue("{x}[:, :{heading}]")))
   names(columns) <- headings
   as.data.frame(dplyr::bind_cols(columns))
+}
+
+
+#' @rdname JuliaConnectoR-wrappers
+#' @noRd
+
+# Recursively handle Vector{Any} objects
+`juliaReceive.Vector{Any}` <- function(x) {
+  n <- juliaEval(glue("length({x})"))
+  lapply(seq_len(n), function(i) {
+    juliaReceive(glue("{x}[{i}]"))
+  })
 }
 
 #' @rdname JuliaConnectoR-wrappers

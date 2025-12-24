@@ -26,7 +26,7 @@
 \usage{
 julia_backend(backend = c("JuliaCall", "JuliaConnectoR"))
 
-julia_start(...)
+julia_start(..., JULIA_PROJ)
 
 julia_stop()
 
@@ -68,6 +68,11 @@ julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 \item{backend}{A \code{character} string that defines the \code{Julia} backend (\code{"JuliaCall"} or \code{"JuliaConnectoR"}).}
 
 \item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
+
+\item{JULIA_PROJ}{(optional) \code{Julia} options, provided as function arguments, global options or environment variables.
+\itemize{
+\item \code{JULIA_PROJ}---A \code{character} string that defines the directory of a \code{Julia} Project. If unspecified, the default environment (e.g., \verb{~/.julia/environments/v1.10/Project.toml}) is used with a \code{\link{message}} instead of a local \code{Julia} project.
+}}
 
 \item{string}{A \code{character} string of \code{Julia} code (or the name of an object for \code{\link[=julia_println]{julia_println()}}.}
 
@@ -154,10 +159,7 @@ if (curl::has_internet()) {
     #### Start Julia
     # Start Julia, activate local environment & add DataFrames package
     dir.create(temp, showWarnings = FALSE)
-    julia <- julia_start()
-    julia_pkg_activate(temp)
-    julia_pkg_add("DataFrames")
-    julia_pkg_add("GeoArrays")
+    julia <- julia_start(JULIA_PROJ = temp)
 
     #### Run one-line commands
     julia_cmd_line("x = 1")
