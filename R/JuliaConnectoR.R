@@ -26,10 +26,7 @@ NULL
 #' @keywords internal
 
 juliaInitialise <- function(...) {
-  # Start server
   julia <- startJuliaServer(...)
-  # Load __r_assign__
-  # (Used to send objects from R to Julia)
   invisible(julia)
 }
 

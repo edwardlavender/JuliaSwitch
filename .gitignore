@@ -5,5 +5,4 @@
 .Rprofile
 .DS_Store
 ._*
-
-dev
+*.png
