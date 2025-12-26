@@ -27,10 +27,14 @@ test_that("JuliaSwitch works", {
       julia_using("OrderedCollections")
 
 
+      #### -----------------------------------------------------------------####
       #### Test julia_cmd
+
       # Test single line
       julia_cmd('x = 1')
       expect_equal(1, julia_pull("x"))
+
+      # Test multi-line
       julia_cmd(
         '
         a = 1
@@ -42,13 +46,19 @@ test_that("JuliaSwitch works", {
       expect_equal(2, julia_pull("b"))
       expect_equal(3, julia_pull("c"))
 
+
+      #### -----------------------------------------------------------------####
       #### Test julia_pkg_installed()
+
       expect_true(julia_pkg_installed("DataFrames"))
       expect_false(julia_pkg_installed("blah"))
       expect_identical(julia_pkg_installed(c("DataFrames", "blah")),
                        c(TRUE, FALSE))
 
+
+      #### -----------------------------------------------------------------####
       #### Test julia_push() and julia_pull() handle time series
+
       # Define timeline
       timeline <- seq(as.POSIXct("2016-01-01", tz = "UTC"),
                       as.POSIXct("2016-01-01 03:18:00", tz = "UTC"),
@@ -72,6 +82,8 @@ test_that("JuliaSwitch works", {
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
       expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
 
+
+      #### -----------------------------------------------------------------####
       #### Test julia_push() handles lists
 
       ## Test empty list
@@ -136,7 +148,6 @@ test_that("JuliaSwitch works", {
       # julia_println("yobs_vect")
       expect_true(julia_pull("yobs_vect == yobs_vect_expected"))
 
-
       ## Test simple named list
       a <- list(a = 1, b = c(1, 2))
       julia_push("a", a)
@@ -179,6 +190,7 @@ test_that("JuliaSwitch works", {
       expect_true(julia_pull("yobs_vect == yobs_vect_expected"))
 
 
+      #### -----------------------------------------------------------------####
       #### Test julia_pull() handles lists
 
       ## Test nested list of dataframes
@@ -267,7 +279,58 @@ test_that("JuliaSwitch works", {
                            callstats = callstats)
       expect_equal(pf_particles, julia_pull("nt"), ignore_attr = TRUE)
 
+
+      #### -----------------------------------------------------------------####
+      # Test handling of in-memory & arrow transfers (JuliaConnectoR)
+
+      # Test for small & big vectors
+      lapply(c(10L, 1e5L), function(n) {
+
+        # Integer vector
+        # > Following implementation of Arrow, the big vector should be relatively fast
+        n      <- as.integer(n)
+        input  <- runif(n)
+        julia_push("x", input)
+        expect_equal(input, julia_pull("x"))
+
+        # Integer vector with missing
+        julia_push("n", n)
+        julia_cmd('x = [rand(n); fill(missing, 2)]')
+        expect_equal(c(NA_real_, NA_real_), tail(julia_pull("x"), 2))
+
+        # Character
+        input  <- sample(c("a", "b", "c"), n, replace = TRUE)
+        julia_push("x", input)
+        expect_equal(input, julia_pull("x"))
+
+        # String
+        input  <- sample(c("apple", "pear", "orange"), n, replace = TRUE)
+        julia_push("x", input)
+        expect_equal(input, julia_pull("x"))
+
+        # Boolian
+        input  <- sample(c(TRUE, FALSE), n, replace = TRUE)
+        julia_push("x", input)
+        expect_equal(input, julia_pull("x"))
+
+        # Timeline
+        # * NB With arrow, we lose the timestamp attribute (UTC -> GMT)
+        input <- as.POSIXct("2025-01-01 00:00:00", tz = "UTC") + seq_len(n) * 60
+        julia_push("x", input)
+        expect_equal(input, julia_pull("x"), ignore_attr = TRUE)
+
+        # Data.frame
+        input <- data.frame(timestamp = as.POSIXct("2025-01-01 00:00:00", tz = "UTC") + seq_len(n) * 60,
+                            value = runif(n))
+        output <- julia_push("x", input)
+        expect_equal(input, julia_pull("x"), ignore_attr = TRUE)
+
+      })
+
+
+      #### -----------------------------------------------------------------####
       #### Clean up
+
       julia_stop()
       unlink(temp, recursive = TRUE)
 
