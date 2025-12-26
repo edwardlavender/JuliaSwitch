@@ -7,7 +7,6 @@ julia_switch <- function(JuliaCall, JuliaConnectoR) {
   switch(backend,
          JuliaCall = JuliaCall,
          JuliaConnectoR = JuliaConnectoR)
-
 }
 
 
@@ -105,7 +104,8 @@ julia_pkg_list_full <- function(.pkg_install) {
 # List required Julia dependencies
 # (modified from patter)
 julia_pkg_list_req <- function() {
-  c("DataFrames",
+  c("Arrow",
+    "DataFrames",
     "Dates",
     "GeoArrays",
     "OrderedCollections",
@@ -117,7 +117,7 @@ julia_pkg_list_req <- function() {
 # (copied from patter)
 julia_pkg_list_installed <- function() {
   julia_import("Pkg")
-  sort(julia_pull('collect(keys(Pkg.project().dependencies));'))
+  sort(julia_pull('collect(keys(Pkg.project().dependencies))'))
 }
 
 
@@ -195,6 +195,7 @@ julia_pkg_setup <- function(.pkg_install,
                             .pkg_load) {
   # List Julia packages for install/update
   pkg_install <- julia_pkg_list_full(.pkg_install = .pkg_install)
+
   pkg_update  <- julia_pkg_list_update(.pkg_update)
   # Install and optionally update dependencies
   julia_pkg_install_deps(.pkg_install = pkg_install,
@@ -242,6 +243,7 @@ julia_send_SpatRaster <- function(name, value, command) {
 
 # Parse Julia 'classes' into syntactic R names
 julia_class_parse <- function(string) {
+
   if (startsWith(string, "DataFrames.DataFrame")) {
     "DataFrame"
   } else if (startsWith(string, "@NamedTuple")) {
@@ -254,21 +256,7 @@ julia_class_parse <- function(string) {
     startsWith(string, "Vector{DateTime}") ||
     startsWith(string, "Vector{Dates.DateTime}")) {
     "VectorDateTime"
-  } else {
+  }  else {
     string
   }
-}
-
-# Drop the JuliaConnectoR attributes
-# * This attribute causes object from Julia to not match their R counterparts
-#   perfectly, which is an issue e.g., in tests with expect_equal()
-#   where ignore_attr = FALSE
-
-drop_attr_JuliaConnectoR <- function(x) {
-  for (att in c("JLDIM", "JLTYPE")) {
-    if (!is.null(attr(x, att, exact = TRUE))) {
-      attr(x, att) <- NULL
-    }
-  }
-  x
 }

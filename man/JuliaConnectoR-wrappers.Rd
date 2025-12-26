@@ -9,10 +9,10 @@
 \alias{juliaSend.data.frame}
 \alias{juliaSend.list}
 \alias{juliaSend.SpatRaster}
-\alias{juliaClass}
 \alias{juliaReceive}
 \alias{juliaReceive.default}
 \alias{juliaReceive.DateTime}
+\alias{juliaReceive.VectorSimple}
 \alias{juliaReceive.VectorDateTime}
 \alias{juliaReceive.DataFrame}
 \alias{juliaReceive.VectorAny}
@@ -34,13 +34,13 @@ juliaSend(name, value)
 
 \method{juliaSend}{SpatRaster}(name, value)
 
-juliaClass(x)
-
 juliaReceive(x)
 
 \method{juliaReceive}{default}(x)
 
 \method{juliaReceive}{DateTime}(x)
+
+\method{juliaReceive}{VectorSimple}(x)
 
 \method{juliaReceive}{VectorDateTime}(x)
 
@@ -59,7 +59,7 @@ juliaTerminate()
 \item \code{value} is the \code{R} object.
 }}
 
-\item{x}{Arguments for \code{\link[=juliaClass]{juliaClass()}} and \code{\link[=juliaReceive]{juliaReceive()}}.
+\item{x}{Arguments for \code{juliaClass()} and \code{\link[=juliaReceive]{juliaReceive()}}.
 \itemize{
 \item \code{x} is a \code{character} that defines the name of an object in \code{Julia}.
 }}
@@ -74,11 +74,6 @@ These internal functions wrap \code{JuliaConnectoR} routines.
 \itemize{
 \item The default method wraps \code{\link[JuliaConnectoR:juliaCall]{JuliaConnectoR::juliaCall()}};
 \item The \code{data.frame} method translates \code{data.frame} inputs to \code{DataFrame}s;
-\item The \code{SpatRaster} method translates \code{\link[terra:SpatRaster-class]{terra::SpatRaster}}s to \code{GeoArray}s;
-}
-\item \code{\link[=juliaClass]{juliaClass()}} extracts the type of a \code{Julia} object as an R \code{class}:
-\itemize{
-\item This is used for method dispatch in \code{\link[=juliaReceive]{juliaReceive()}};
 }
 \item \code{\link[=juliaReceive]{juliaReceive()}} is a \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} equivalent:
 \itemize{

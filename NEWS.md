@@ -12,7 +12,7 @@
 * Update internal functions
     - Add `julia_initalise()` and `juliaInitialise()` wrappers;
     - Rename `julia_allot()` and `juliaAllot()` to `julia_send()` and `JuliaSend()`;
-    - Add/rename `julia_receive()` and `juliaReceiver()` (formerly `juliaTranslate()`);
+    - Add/rename `julia_receive()` and `juliaReceive()` (formerly `juliaTranslate()`);
 
 # JuliaSwitch 0.0.1
 

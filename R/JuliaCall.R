@@ -6,8 +6,6 @@
 #'    - The default method simply calls [`JuliaCall::julia_assign()`];
 #'    - The default method handles `data.frame` objects;
 #'    - The `SpatRaster` method translates [`terra::SpatRaster`]s to `GeoArray`s;
-#' * [`julia_class()`] extracts the type of a `Julia` object as an R `class`:
-#'    - This is used for method dispatch in [`juliaReceive()`];
 #' * [`julia_receive()`] wraps [`JuliaCall::julia_eval()`] wrapper:
 #'    - The default method handles wraps [`JuliaCall::julia_eval()`] and handles [`data.frame`]s;
 #' * [`julia_terminate()`] is a placeholder equivalent for [`juliaTerminate()`] ([`JuliaConnectoR::stopJulia()`]);
@@ -50,7 +48,7 @@ julia_send.SpatRaster <- function(name, value) {
 julia_class <- function(x) {
   # type <- julia_eval(glue('string(nameof(typeof({x})))'))
   type <- julia_eval(glue('string(typeof({x}))'))
-  type <- julia_class_parse(type)
+  # type <- julia_class_parse(type)
   structure(list(), class = type)
 }
 

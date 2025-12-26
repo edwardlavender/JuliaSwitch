@@ -13,8 +13,8 @@ if (curl::has_internet()) {
   lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
 
     #### Set Julia backend
-    # julia_backend("JuliaCall")
-    # julia_backend("JuliaConnectoR")
+    # backend <- "JuliaCall"
+    # backend <- "JuliaConnectoR"
     julia_backend(backend)
 
     #### Start Julia

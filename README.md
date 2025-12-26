@@ -65,6 +65,7 @@ devtools::install_github("edwardlavender/JuliaSwitch",
   - `julia_include()` sources a `Julia` script;
   - `julia_defined()` checks if an object is defined;
   - `julia_println()` prints lines;
+  - `julia_helpfile()` prints a help file;
   - `julia_save()` and `julia_load()` save and load a file;
 
 - To push an object from `R` to `Julia`, use `julia_push()`.
@@ -77,7 +78,7 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 
 `JuliaSwitch` uses `S3` methods to handle object transfers between `R`
 and `Julia`. Method dispatch is implemented by the internal functions
-`julia_send()`, `juliaSend()`, `julia_receiver()` and
+`julia_send()`, `juliaSend()`, `julia_receive()` and
 `juliaReceive()`.The default methods call the relevant `JuliaCall` or
 `JuliaConnectoR` routines. Special cases (such as `data.frame`s and
 `terra::SpatRaster`s) are handled by custom methods. Specify additional
