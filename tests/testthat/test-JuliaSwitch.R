@@ -63,24 +63,34 @@ test_that("JuliaSwitch works", {
       timeline <- seq(as.POSIXct("2016-01-01", tz = "UTC"),
                       as.POSIXct("2016-01-01 03:18:00", tz = "UTC"),
                       by = "2 mins")
+
       # Test for a single timestamp
+      # > Note that tzone is maintained
       julia_push("timestamp", timeline[1])
       expect_equal(timeline[1], julia_pull("timestamp"))
+      expect_equal(attr(timeline[1], "tzone"), "UTC")
+      expect_equal(attr(julia_pull("timestamp"), "tzone"), "UTC")
+
       # Test for a vector of timestamps
       julia_push("timeline", timeline)
       expect_equal(timeline, julia_pull("timeline"))
+
       # Test for a one-row dataframe
       d <- data.frame(timestamp = timeline[1], timestep = 1)
       julia_push("d", d)
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
       expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
+
       # Test for a multi-row data.frame
       d <- data.frame(timestamp = timeline[1:5], timestep = 1:5)
       julia_push("d", d)
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
       expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
+
+      # NB with big dataframes tzone is not maintained
+      # TO DO TO FIX
 
 
       #### -----------------------------------------------------------------####
