@@ -75,6 +75,10 @@ test_that("JuliaSwitch works", {
       julia_push("timeline", timeline)
       expect_equal(timeline, julia_pull("timeline"))
 
+      # Test for a big vector of time steps
+      # With big vector tzone is not maintained (via arrow)
+      # TO DO TO FIX
+
       # Test for a one-row dataframe
       d <- data.frame(timestamp = timeline[1], timestep = 1)
       julia_push("d", d)
@@ -88,9 +92,6 @@ test_that("JuliaSwitch works", {
       expect_equal(d$timestamp[1], julia_pull('d.timestamp[1]'))
       expect_equal(d$timestamp, julia_pull('d.timestamp'), ignore_attr = FALSE)
       expect_equal(d, julia_pull("d"), ignore_attr = FALSE)
-
-      # NB with big dataframes tzone is not maintained
-      # TO DO TO FIX
 
 
       #### -----------------------------------------------------------------####
