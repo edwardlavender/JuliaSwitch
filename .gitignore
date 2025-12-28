@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 .Rprofile
+.Renviron
 .DS_Store
 ._*
 *.png

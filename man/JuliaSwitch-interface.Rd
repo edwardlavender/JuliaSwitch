@@ -26,7 +26,7 @@
 \usage{
 julia_backend(backend = c("JuliaCall", "JuliaConnectoR"))
 
-julia_start(..., JULIA_PROJ)
+julia_start(JULIA_PROJ, JULIA_NUM_THREADS, ...)
 
 julia_stop()
 
@@ -65,14 +65,15 @@ julia_save(name, file = name)
 julia_load(file, name = basename(tools::file_path_sans_ext(file)))
 }
 \arguments{
-\item{backend}{A \code{character} string that defines the \code{Julia} backend (\code{"JuliaCall"} or \code{"JuliaConnectoR"}).}
+\item{backend}{For \code{\link[=julia_backend]{julia_backend()}}, \code{backend} is a \code{character} string that defines the \code{Julia} backend (\code{"JuliaCall"} or \code{"JuliaConnectoR"}).}
 
-\item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
-
-\item{JULIA_PROJ}{(optional) \code{Julia} options, provided as function arguments, global options or environment variables.
+\item{JULIA_PROJ, JULIA_NUM_THREADS}{(optional) \code{Julia} options for \code{\link[=julia_start]{julia_start()}} provided as function arguments, global options or environment variables.
 \itemize{
 \item \code{JULIA_PROJ}---A \code{character} string that defines the directory of a \code{Julia} Project. If unspecified, the default environment (e.g., \verb{~/.julia/environments/v1.10/Project.toml}) is used with a \code{\link{message}} instead of a local \code{Julia} project.
+\item \code{JULIA_NUM_THREADS}---On MacOS or Linux, \code{JULIA_NUM_THREADS} is a \code{character} (\code{"auto"}) or an \code{integer} that defines the number of threads used by multi-threaded operations in \code{Julia}. This defaults to \code{"auto"} (not \code{1}). This can only be set once per \code{R} session. On Windows, \code{JULIA_NUM_THREADS} must be set system-wide and use of this argument produces a \code{\link{warning}}. See this \href{https://github.com/edwardlavender/patter/issues/11}{GitHub Issue} for instructions.
 }}
+
+\item{...}{Arguments passed to \code{JuliaCall} or \code{JuliaConnectoR} routines.}
 
 \item{string}{A \code{character} string of \code{Julia} code (or the name of an object for \code{\link[=julia_println]{julia_println()}}.}
 

@@ -53,6 +53,45 @@ julia_option <- function(VALUE) {
 }
 
 
+# Set JULIA_NUM_THREADS
+# (copied from patter)
+set_JULIA_NUM_THREADS <- function(JULIA_NUM_THREADS) {
+  # Get JULIA_NUM_THREADS
+  JULIA_NUM_THREADS <- julia_option(JULIA_NUM_THREADS)
+  # On unix, set JULIA_NUM_THREADS = "auto"
+  # (Otherwise, Julia is launched with one thread only)
+  if (os_unix() & is.null(JULIA_NUM_THREADS)) {
+    JULIA_NUM_THREADS <- "auto"
+  }
+  # On Windows, JULIA_NUM_THREADS should be NULL or set system-wide
+  if (os_windows()) {
+    if (is.null(JULIA_NUM_THREADS)) {
+      msg("On Windows, set `JULIA_NUM_THREADS` system-wide to improve performance (see https://github.com/edwardlavender/patter/issues/11).")
+    } else {
+      # Verify that JULIA_NUM_THREADs is set system-wide (not only in R)
+      # (System-wide variables are captured by Sys.getenv())
+      try({
+        # Obtain system-wide environment variables via registry
+        # Note this check appears to work on some, but not all, systems
+        # * Hence we use a message not a warning
+        # (system("cmd.exe /c set", intern = TRUE) inherits environment variables from R)
+        SET <- system("reg query \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" /s", intern = TRUE)
+        if (!any(grepl("JULIA_NUM_THREADS", SET))) {
+          msg("On Windows, `JULIA_NUM_THREADS` should be set system-wide (see https://github.com/edwardlavender/patter/issues/11).")
+        }
+      }, silent = TRUE)
+    }
+  }
+  # Update JULIA_NUM_THREADS setting
+  # * This is implemented on unix only
+  # * On Windows, JULIA_NUM_THREADS is already set if relevant
+  if (os_unix() & !is.null(JULIA_NUM_THREADS)) {
+    Sys.setenv(JULIA_NUM_THREADS = JULIA_NUM_THREADS)
+  }
+  invisible(JULIA_NUM_THREADS)
+}
+
+
 # Find the path to a Julia Project
 # (copied from patter)
 julia_proj_path <- function(JULIA_PROJ) {
@@ -219,6 +258,16 @@ julia_helpers <- function() {
     end
   ')
   }
+}
+
+
+# Get the number of threads used by Julia
+julia_threads <- function(JULIA_NUM_THREADS) {
+  nthreads <- julia_pull("Threads.nthreads()")
+  if (!is.null(JULIA_NUM_THREADS) && JULIA_NUM_THREADS != "auto" && nthreads != JULIA_NUM_THREADS) {
+    warn("`JULIA_NUM_THREADS` could not be set.")
+  }
+  invisible(nthreads)
 }
 
 

@@ -7,7 +7,10 @@
     - `julia_helpfile()`, to print a help file;
     
 * Improve flexibility:
+    - `julia_start()` contains additional functionality;
     - `julia_pkg_*()` functions support multiple packages;
+    - `julia_push()` and `julia_pull()` support additional object types;
+    - `julia_pull` uses Arrow for large objects to improve speed; 
     
 * Update internal functions
     - Add `julia_initalise()` and `juliaInitialise()` wrappers;

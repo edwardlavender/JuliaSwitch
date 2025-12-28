@@ -1,8 +1,9 @@
 #' @title Julia interface
 #' @description A common `R`--`Julia` interface syntax.
-#' @param backend A `character` string that defines the `Julia` backend (`"JuliaCall"` or `"JuliaConnectoR"`).
-#' @param JULIA_PROJ (optional) `Julia` options, provided as function arguments, global options or environment variables.
+#' @param backend For [`julia_backend()`], `backend` is a `character` string that defines the `Julia` backend (`"JuliaCall"` or `"JuliaConnectoR"`).
+#' @param JULIA_PROJ,JULIA_NUM_THREADS (optional) `Julia` options for [`julia_start()`] provided as function arguments, global options or environment variables.
 #' * `JULIA_PROJ`---A `character` string that defines the directory of a `Julia` Project. If unspecified, the default environment (e.g., `~/.julia/environments/v1.10/Project.toml`) is used with a [`message`] instead of a local `Julia` project.
+#' * `JULIA_NUM_THREADS`---On MacOS or Linux, `JULIA_NUM_THREADS` is a `character` (`"auto"`) or an `integer` that defines the number of threads used by multi-threaded operations in `Julia`. This defaults to `"auto"` (not `1`). This can only be set once per `R` session. On Windows, `JULIA_NUM_THREADS` must be set system-wide and use of this argument produces a [`warning`]. See this [GitHub Issue](https://github.com/edwardlavender/patter/issues/11) for instructions.
 #' @param file For [`julia_include()`], `file` is a `character` string that defines the name of a `Julia` script to source.
 #' @param name,value For [`julia_push()`]:
 #' * `name` is a `character` that defines the object name in `Julia`.
@@ -66,26 +67,38 @@ julia_backend <- function(backend = c("JuliaCall", "JuliaConnectoR")) {
 #' @export
 
 # Start Julia
-julia_start <- function(..., JULIA_PROJ) {
+julia_start <- function(JULIA_PROJ, JULIA_NUM_THREADS, ...) {
+
+  # Set JULIA_{VARIABLES}
+  # (optional) TO DO ADD JULIA_BIN
+  JULIA_NUM_THREADS <- set_JULIA_NUM_THREADS(JULIA_NUM_THREADS)
+
   # Start Julia
   .julia_start <- julia_switch(julia_initialise, juliaInitialise)
   julia <- .julia_start(...)
+
   # (optional) Use local Julia project
   JULIA_PROJ <- julia_proj_path(JULIA_PROJ)
   if (!is.null(JULIA_PROJ)) {
     julia_pkg_generate(JULIA_PROJ)
     julia_pkg_activate(JULIA_PROJ)
   }
+
   # Define helper functions
   # * __assign_from_JuliaConnectoR__ is needed for julia_push()
   julia_helpers()
+
   # Install (if needed) & import required packages
   # * Handle required Julia packages: DataFrames, Dates, GeoArrays, OrderedDict
   julia_pkg_setup(.pkg_install = NULL,
                   .pkg_update = NULL,
                   .pkg_load = NULL)
-  # (optional) TO DO Add julia_connect() functionality e.g., threads here
+
+  # Validate Julia settings
+  nthreads <- julia_threads(JULIA_NUM_THREADS)
+  msg(paste0("... `Julia` set up with ", nthreads, " thread(s)."))
   invisible(julia)
+
 }
 
 #' @rdname JuliaSwitch-interface
