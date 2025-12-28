@@ -17,8 +17,10 @@ backends for `R`–`Julia` communication without changes to the code base.
 
 # Motivation
 
-`JuliaSwitch` was motivated our work on animal tracking with `patter`.
-This package provides an `R` interface to `Patter.jl`, which fit
+`JuliaSwitch` was motivated our work on animal tracking with
+[`patter`](https://github.com/edwardlavender/patter). This package
+provides an `R` interface to
+[`Patter.jl`](https://github.com/edwardlavender/Paytter.jl), which fit
 state-space models to animal-tracking data in `Julia`.
 
 > When `patter` was first developed, we used
@@ -83,6 +85,43 @@ and `Julia`. Method dispatch is implemented by the internal functions
 `JuliaConnectoR` routines. Special cases (such as `data.frame`s and
 `terra::SpatRaster`s) are handled by custom methods. Specify additional
 methods for other special cases.
+
+## Push methods
+
+`julia_push()` is implemented via:
+
+- `julia_send()`, which wraps `JuliaCall::julia_assign()` and directly
+  handles most object types;
+- `juliaSend()`, which wraps `JuliaConnectoR::juliaCall()` and handles
+  common object types via specific S3 methods;
+
+| `R` class | `JuliaCall` method | `JuliaConnectoR` method | `Julia` type |
+|:---|:---|:---|:---|
+| `Vector` | `julia_send.default` | `juliaSend.default` | One-dimensional vector,<br>e.g. `Vector{Float64}` |
+| `POSIXct` | `julia_send.default` | `juliaSend.POSIXct` | `DateTime` or<br>`Vector{DateTime}` |
+| `data.frame` | `julia_send.default` | `juliaSend.data.frame` | `DataFrame` |
+| `list` | `julia_send.default` | `juliaSend.list` | `Any[]` (empty `list`),<br>`Vector{Any}` (unnamed `list`),<br>`OrderedCollections.OrderedDict{Symbol, Any}` (named `list`) |
+| `SpatRaster` | `julia_send.SpatRaster` | `juliaSend.SpatRaster` | `GeoArray` |
+
+## Julia pull methods
+
+`Julia_pull()` is implemented via:
+
+- `julia_receive()`, which wraps `JuliaCall::julia_eval()` and directly
+  handles most object types;
+- `juliaReceive()`, which wraps `JuliaConnectoR::juliaEval()` for
+  ‘small’ objects or `Arrow.write` and `arrow::read_feather()` for
+  larger objects via specific S3 methods;
+
+| `Julia` type | `JuliaCall` method | `JuliaConnectoR` method | `R` class |
+|----|----|----|----|
+| (default) | `julia_receive.default` | `juliaReceive.default` | — |
+| One-dimensional vector<br>e.g. `Vector{Float64}` | `julia_receive.default` | `juliaReceive.VectorSimple` | Vector (e.g. `numeric`) |
+| `DateTime` | `julia_receive.default` | `juliaReceive.DateTime` | `POSIXct` |
+| `Vector{DateTime}` | `julia_receive.default` | `juliaReceive.VectorDateTime` | `POSIXct` |
+| `DataFrame` | `julia_receive.default` | `juliaReceive.DataFrame` | `data.frame` |
+| `Vector{Any}` | `julia_receive.default` | `juliaReceive.VectorAny` | `list` |
+| `NamedTuple` | `julia_receive.default` | `juliaReceive.NamedTuple` | `list` |
 
 # Citation
 
