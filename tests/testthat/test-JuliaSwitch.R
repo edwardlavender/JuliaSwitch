@@ -77,6 +77,7 @@ test_that("JuliaSwitch works", {
 
       # Test for a big vector of time steps
       # With big vector tzone is not maintained (via arrow)
+      # https://stackoverflow.com/questions/68665865/issue-with-timestamp-parsing-in-read-csv-arrow-from-arrow-package-in-r
       # TO DO TO FIX
 
       # Test for a one-row dataframe
@@ -348,5 +349,38 @@ test_that("JuliaSwitch works", {
     })
 
   }
+
+})
+
+test_that("JuliaSwitch works on a socket cluster", {
+
+  lapply(c("JuliaConnectoR", "JuliaCall"), function(backend) {
+
+    # Set backend
+    julia_backend(backend)
+
+    # Check Julia on a single core
+    # (We simply use JuliaSwitch project environment for this)
+    Sys.setenv("JULIA_NUM_THREADS" = "1")
+    julia_start()
+    expect_equal(0.0, julia_pull("0.0"))
+
+    # Run Julia in parallel on Socket cluster
+    cl <- parallel::makeCluster(2L)
+    values <- pbapply::pblapply(1:10,
+                                cl = cl,
+                                FUN = function(i) {
+                                  Sys.setenv("JULIA_NUM_THREADS" = "1")
+                                  JuliaSwitch::julia_start()
+                                  value <- JuliaSwitch::julia_pull(paste0(i))
+                                  JuliaSwitch::julia_stop()
+                                  value
+                                })
+    parallel::stopCluster(cl)
+
+    expect_equal(values, as.list(1:10))
+    julia_stop()
+
+  })
 
 })
