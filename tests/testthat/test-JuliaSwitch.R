@@ -28,6 +28,20 @@ test_that("JuliaSwitch works", {
 
 
       #### -----------------------------------------------------------------####
+      #### Test JULIA_NUM_THREADS
+
+      # Test set_JULIA_NUM_THREADS()
+      JULIA_NUM_THREADS <- Sys.getenv("JULIA_NUM_THREADS")
+      set_JULIA_NUM_THREADS(Inf) |>
+        expect_warning("There are multiple values for `JULIA_NUM_THREADS`.", fixed = TRUE)
+      Sys.setenv("JULIA_NUM_THREADS" = JULIA_NUM_THREADS)
+
+      # Test julia_threads()
+      julia_threads(999) |>
+        expect_warning("`JULIA_NUM_THREADS` could not be set.", fixed = TRUE)
+
+
+      #### -----------------------------------------------------------------####
       #### Test julia_cmd
 
       # Test single line
