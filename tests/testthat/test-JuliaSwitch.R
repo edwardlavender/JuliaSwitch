@@ -94,7 +94,9 @@ test_that("JuliaSwitch works", {
       # Test for a big vector of time steps
       # With big vector tzone is not maintained (via arrow)
       # https://stackoverflow.com/questions/68665865/issue-with-timestamp-parsing-in-read-csv-arrow-from-arrow-package-in-r
-      # TO DO TO FIX
+      timeline <- seq(as.POSIXct("2016-01-01", tz = "UTC"),
+                      as.POSIXct("2016-01-01 03:18:00", tz = "UTC"),
+                      by = "2 mins")
 
       # Test for a one-row dataframe
       d <- data.frame(timestamp = timeline[1], timestep = 1)
