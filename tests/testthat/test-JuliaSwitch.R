@@ -95,8 +95,10 @@ test_that("JuliaSwitch works", {
       # With big vector tzone is not maintained (via arrow)
       # https://stackoverflow.com/questions/68665865/issue-with-timestamp-parsing-in-read-csv-arrow-from-arrow-package-in-r
       timeline <- seq(as.POSIXct("2016-01-01", tz = "UTC"),
-                      as.POSIXct("2016-01-01 03:18:00", tz = "UTC"),
+                      as.POSIXct("2016-02-01 03:18:00", tz = "UTC"),
                       by = "2 mins")
+      julia_push("timeline", timeline)
+      expect_equal(timeline, julia_pull("timeline"), ignore_attr = TRUE)
 
       # Test for a one-row dataframe
       d <- data.frame(timestamp = timeline[1], timestep = 1)
