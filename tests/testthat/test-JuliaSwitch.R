@@ -3,6 +3,8 @@ test_that("JuliaSwitch works", {
   if (curl::has_internet()) {
 
     # Define temporary Julia project
+    JULIA_PROJ <- Sys.getenv("JULIA_PROJ")
+    Sys.unsetenv("JULIA_PROJ")
     temp <- file.path(tempdir(), "JuliaSwitch")
 
     # Run Julia code with each backend
@@ -10,14 +12,14 @@ test_that("JuliaSwitch works", {
 
       #### Set Julia backend
       # backend <- "JuliaCall"
-      # julia_backend(backend)
       # backend <- "JuliaConnectoR"
       julia_backend(backend)
 
       #### Start Julia
       # Start Julia, activate local environment & add DataFrames package
       dir.create(temp, showWarnings = FALSE)
-      julia <- julia_start(JULIA_PROJ = temp)
+      julia <- try_julia_start(temp)
+      skip_if(isFALSE(julia))
       julia_pkg_activate(temp)
       # julia_pkg_add("DataFrames")
       # julia_pkg_add("Dates")
@@ -362,6 +364,8 @@ test_that("JuliaSwitch works", {
 
     })
 
+    Sys.setenv(JULIA_PROJ)
+
   }
 
 })
@@ -370,24 +374,34 @@ test_that("JuliaSwitch works on a socket cluster", {
 
   lapply(c("JuliaConnectoR", "JuliaCall"), function(backend) {
 
-    # Set backend
+    # Initialise Julia
+    JULIA_PROJ <- Sys.getenv("JULIA_PROJ")
+    Sys.unsetenv("JULIA_PROJ")
+    temp <- file.path(tempdir(), "JuliaSwitch")
+    Sys.setenv("JULIA_NUM_THREADS" = "1")
     julia_backend(backend)
+    julia <- try_julia_start(temp)
+    skip_if(isFALSE(julia))
 
     # Check Julia on a single core
-    # (We simply use JuliaSwitch project environment for this)
-    Sys.setenv("JULIA_NUM_THREADS" = "1")
-    julia_start()
     expect_equal(0.0, julia_pull("0.0"))
 
     # Run Julia in parallel on Socket cluster
     cl <- parallel::makeCluster(2L)
+    parallel::clusterExport(cl,
+                            varlist = c("backend", "temp"),
+                            envir = environment())
+    parallel::clusterEvalQ(cl, library(JuliaSwitch))
     values <- pbapply::pblapply(1:10,
                                 cl = cl,
                                 FUN = function(i) {
+                                  # Set threads & options
                                   Sys.setenv("JULIA_NUM_THREADS" = "1")
-                                  JuliaSwitch::julia_start()
-                                  value <- JuliaSwitch::julia_pull(paste0(i))
-                                  JuliaSwitch::julia_stop()
+                                  julia_backend(backend)
+                                  # Try Julia
+                                  julia_start(temp)
+                                  value <- julia_pull(paste0(i))
+                                  julia_stop()
                                   value
                                 })
     parallel::stopCluster(cl)
@@ -396,5 +410,7 @@ test_that("JuliaSwitch works on a socket cluster", {
     julia_stop()
 
   })
+
+  Sys.setenv(JULIA_PROJ)
 
 })
