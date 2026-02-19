@@ -228,6 +228,9 @@ julia_pkg_add <- function(pkg) {
     # E.g., if a tempfile() is later used
     # Error in file(con, "w") : cannot open the connection ...
     # Hence we recreate tempdir() after this code
+    # NB: for this reason we should avoid using tempdir() to create a project
+    # (as packages may be installed and then removed, so only a portion of the
+    # required packages may ultimately be installed)
     julia_cmd_line(glue('Pkg.add("{p}")'))
     tempdir(check = TRUE)
   })

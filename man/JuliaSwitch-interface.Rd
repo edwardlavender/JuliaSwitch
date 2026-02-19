@@ -160,13 +160,7 @@ if (curl::has_internet()) {
     #### Start Julia
     # Start Julia, activate local environment & add DataFrames package
     dir.create(temp, showWarnings = FALSE)
-    julia <- tryCatch(julia_start(JULIA_PROJ = temp),
-                      error = function(e) e)
-    if (inherits(julia, "error")) {
-      unlink(temp, recursive = TRUE)
-      return(warning(julia, .call = FALSE))
-      warning("julia_start() failed!")
-    }
+    julia <- julia_start(JULIA_PROJ = temp)
 
     #### Run one-line commands
     julia_cmd_line("x = 1")

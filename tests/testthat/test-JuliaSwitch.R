@@ -5,7 +5,9 @@ test_that("JuliaSwitch works", {
     # Define temporary Julia project
     JULIA_PROJ <- Sys.getenv("JULIA_PROJ")
     Sys.unsetenv("JULIA_PROJ")
-    temp <- file.path(tempdir(), "JuliaSwitch")
+    temp <- test_path("_temp")
+    unlink(temp, recursive = TRUE)
+    dir.create(temp)
 
     # Run Julia code with each backend
     lapply(c("JuliaCall", "JuliaConnectoR"), function(backend) {
@@ -18,7 +20,7 @@ test_that("JuliaSwitch works", {
       #### Start Julia
       # Start Julia, activate local environment & add DataFrames package
       dir.create(temp, showWarnings = FALSE)
-      julia <- try_julia_start(temp)
+      julia <- julia_start(temp)
       skip_if(isFALSE(julia))
       julia_pkg_activate(temp)
       # julia_pkg_add("DataFrames")
@@ -384,7 +386,7 @@ test_that("JuliaSwitch works on a socket cluster", {
     temp <- file.path(tempdir(), "JuliaSwitch")
     Sys.setenv("JULIA_NUM_THREADS" = "1")
     julia_backend(backend)
-    julia <- try_julia_start(temp)
+    julia <- julia_start(temp)
     skip_if(isFALSE(julia))
 
     # Check Julia on a single core
