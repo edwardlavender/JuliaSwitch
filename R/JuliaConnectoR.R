@@ -52,6 +52,13 @@ juliaSend.default <- function(name, value) {
 # Send POSIXct vectors to Julia
 juliaSend.POSIXct <- function(name, value) {
   juliaEval("import Dates")
+  if (lubridate::tz(value) == "") {
+    abort("Time zone is assumed to be UTC.")
+    lubridate::tz(value) <- "UTC"
+  }
+  if (lubridate::tz(value) != "UTC") {
+    abort("Only the UTC time zone is supported.")
+  }
   juliaSend(name, as.numeric(value))
   julia_cmd(glue("{name} = Dates.unix2datetime.({name})"))
 }
@@ -259,7 +266,12 @@ juliaReceiveFeather <- function(x) {
   julia_push("tmp_feather", tmp_feather)
   julia_cmd_line(glue('Arrow.write(tmp_feather, {x})'))
   on.exit(unlink(tmp_feather), add = TRUE)
-  arrow::read_feather(tmp_feather) |> as.data.frame()
+  # Read data.frame
+  # As arrow assumes UTC time stamps, this is set
+  tmp_feather |>
+    arrow::read_feather() |>
+    mutate(across(where(~inherits(.x, "POSIXt")), ~lubridate::with_tz(.x, "UTC"))) |>
+    as.data.frame()
 }
 
 #' @rdname JuliaConnectoR-wrappers
@@ -300,7 +312,9 @@ juliaReceiveMemVectorDateTime <- function(x) {
 
 # Receive a Vector of DateTimes via feather
 juliaReceiveFeatherVectorDateTime <- function(x) {
-  juliaReceiveFeatherVectorSimple(x)
+  x |>
+    juliaReceiveFeatherVectorSimple() |>
+    lubridate::with_tz("UTC")
 }
 
 #' @rdname JuliaConnectoR-wrappers

@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 4.1),
 Imports:
-    arrow, dplyr, glue, JuliaCall, JuliaConnectoR
+    arrow, dplyr, glue, JuliaCall, JuliaConnectoR, lubridate
 Suggests:
     curl,
     pbapply,
