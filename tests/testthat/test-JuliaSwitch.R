@@ -368,7 +368,7 @@ test_that("JuliaSwitch works", {
 
     })
 
-    Sys.setenv(JULIA_PROJ)
+    Sys.setenv(JULIA_PROJ = JULIA_PROJ)
 
   }
 
@@ -413,8 +413,8 @@ test_that("JuliaSwitch works on a socket cluster", {
     expect_equal(values, as.list(1:10))
     julia_stop()
 
-  })
+    Sys.setenv(JULIA_PROJ = JULIA_PROJ)
 
-  Sys.setenv(JULIA_PROJ)
+  })
 
 })
