@@ -20,11 +20,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Edward Lavender \email{edward.lavender@eawag.ch} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
+\strong{Maintainer}: Edward Lavender \email{e.lavender@napier.ac.uk} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
 
 Authors:
 \itemize{
-  \item Edward Lavender \email{edward.lavender@eawag.ch} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
+  \item Edward Lavender \email{e.lavender@napier.ac.uk} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
 }
 
 }

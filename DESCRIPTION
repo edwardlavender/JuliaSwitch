@@ -3,7 +3,7 @@ Title: A common Julia interface for R
 Version: 0.0.2
 Authors@R: 
     person("Edward", "Lavender", 
-           email = "edward.lavender@eawag.ch", 
+           email = "e.lavender@napier.ac.uk", 
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8040-7489"))
 Description: Switch between Julia interfaces (JuliaCall, JuliaConnectoR) for R with a common syntax. 
