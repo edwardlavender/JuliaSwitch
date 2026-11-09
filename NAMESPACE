@@ -20,15 +20,21 @@ export(julia_save)
 export(julia_start)
 export(julia_stop)
 export(julia_using)
-importFrom(JuliaCall,julia_assign)
-importFrom(JuliaCall,julia_command)
-importFrom(JuliaCall,julia_eval)
-importFrom(JuliaCall,julia_setup)
-importFrom(JuliaConnectoR,juliaCall)
-importFrom(JuliaConnectoR,juliaEval)
-importFrom(JuliaConnectoR,startJuliaServer)
-importFrom(JuliaConnectoR,stopJulia)
-importFrom(dplyr,across)
-importFrom(dplyr,mutate)
-importFrom(dplyr,where)
+importFrom(JuliaCall,
+  julia_assign,
+  julia_command,
+  julia_eval,
+  julia_setup
+)
+importFrom(JuliaConnectoR,
+  juliaCall,
+  juliaEval,
+  startJuliaServer,
+  stopJulia
+)
+importFrom(dplyr,
+  across,
+  mutate,
+  where
+)
 importFrom(glue,glue)
