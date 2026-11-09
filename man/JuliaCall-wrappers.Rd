@@ -38,7 +38,7 @@ These internal functions wrap \code{JuliaCall} routines.
 \itemize{
 \item The default method simply calls \code{\link[JuliaCall:julia_assign]{JuliaCall::julia_assign()}};
 \item The default method handles \code{data.frame} objects;
-\item The \code{SpatRaster} method translates \code{\link[terra:SpatRaster-class]{terra::SpatRaster}}s to \code{GeoArray}s;
+\item The \code{SpatRaster} method translates \code{\link[terra:SpatRaster]{terra::SpatRaster}}s to \code{GeoArray}s;
 }
 \item \code{\link[=julia_receive]{julia_receive()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} wrapper:
 \itemize{

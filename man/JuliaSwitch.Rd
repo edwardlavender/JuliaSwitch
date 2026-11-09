@@ -22,4 +22,9 @@ Useful links:
 \author{
 \strong{Maintainer}: Edward Lavender \email{edward.lavender@eawag.ch} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
 
+Authors:
+\itemize{
+  \item Edward Lavender \email{edward.lavender@eawag.ch} (\href{https://orcid.org/0000-0002-8040-7489}{ORCID})
+}
+
 }
