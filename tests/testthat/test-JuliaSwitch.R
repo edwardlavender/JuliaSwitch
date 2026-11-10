@@ -51,6 +51,7 @@ test_that("JuliaSwitch works", {
       # Test single line
       julia_cmd('x = 1')
       expect_equal(1, julia_pull("x"))
+      expect_equal(1, julia_pull("x = 1"))
 
       # Test multi-line
       julia_cmd(

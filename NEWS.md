@@ -1,5 +1,7 @@
 # JuliaSwitch 0.0.2
 
+* `julia_pull()` now supports assignment expressions (#1).
+
 * Export new functions:
     - `julia_cmd()`, to run arbitrary code;
     - `julia_pkg_installed()`, to check if package(s) are installed;

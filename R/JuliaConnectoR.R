@@ -134,7 +134,7 @@ juliaSend.SpatRaster <- function(name, value) {
 
 juliaClass <- function(x) {
   # Define type
-  type <- juliaEval(glue('string(typeof({x}))'))
+  type <- juliaEval(glue('string(typeof(begin {x} end))'))
   # Recode Vector{Float64} etc. as VectorSimple
   # * This cannot be done in julia_class_parse() b/c we need juliaEval
   #   which is JuliaConnectoR specific
