@@ -96,6 +96,7 @@ There are three possible ways to run code, listed in rough order of desirability
 ## Git
 
 - If the user asks you to commit, use markdown in the commit message, and don't line wrap.
+- Use sentence case for commit messages
 - Include 🤖 Written by AI 🤖 at the top of the commit message. 
 - If the commit fixes an issue, include `Fixes #num.` on its own line.
 - Only push when the user explicitly requests it.
