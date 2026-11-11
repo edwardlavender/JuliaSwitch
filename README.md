@@ -48,6 +48,32 @@ devtools::install_github("edwardlavender/JuliaSwitch",
                          dependencies = TRUE)
 ```
 
+To start `Julia` and install the `Julia` dependencies, run:
+
+``` r
+backend <- "JuliaCall"
+# backend <- "JuliaConnectoR"
+julia_backend(backend) 
+julia_start()
+```
+
+The function `julia_start()` starts the selected backend and triggers
+installation of its `Julia` dependencies in the base (default) `Julia`
+environment:
+
+- `"JuliaCall"` installs `RCall.jl`, `Revise.jl`, `Suppressor.jl`
+- `"JuliaConnectoR"` installs `Tables.jl`
+
+After starting the backend, `julia_start()` activates a local project
+environment (via `JULIA_PROJ`), if specified. On first use, additional
+`JuliaSwitch` dependencies are installed in that environment:
+
+- `Arrow.jl`
+- `DataFrames.jl`
+- `Dates.jl`
+- `GeoArrays.jl`
+- `OrderedCollections.jl`
+
 # Functionality
 
 - Run `julia_backend("JuliaCall")` or `julia_backend("JuliaConnectoR")`

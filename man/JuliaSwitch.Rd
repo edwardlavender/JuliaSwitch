@@ -11,6 +11,22 @@ Switch between Julia interfaces (JuliaCall, JuliaConnectoR) for R with a common 
 \details{
 For a list of exported functions, see \code{\link{JuliaSwitch-interface}}.
 }
+\section{Julia dependencies}{
+Calling \code{\link[=julia_start]{julia_start()}} starts the selected backend and triggers
+installation of its \code{Julia} dependencies in the base (default) \code{Julia}
+environment:
+\itemize{
+\item \code{JuliaCall} installs \code{RCall}, \code{Revise} and \code{Suppressor};
+\item \code{JuliaConnectoR} installs \code{Tables}.
+}
+
+After starting the backend, \code{\link[=julia_start]{julia_start()}} activates \code{JULIA_PROJ}, if
+supplied, and installs or loads the \code{JuliaSwitch} dependencies \code{Arrow},
+\code{DataFrames}, \code{Dates}, \code{GeoArrays} and \code{OrderedCollections} in that local
+environment. If \code{JULIA_PROJ} is not supplied, these dependencies use the
+default environment. \code{Dates} is included in the \code{Julia} standard library.
+}
+
 \seealso{
 Useful links:
 \itemize{
