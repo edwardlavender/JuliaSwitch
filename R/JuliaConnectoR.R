@@ -264,7 +264,7 @@ juliaReceiveFeather <- function(x) {
   # Read data.frame
   # As arrow assumes UTC time stamps, this is set
   tmp_feather |>
-    arrow::read_feather() |>
+    arrow::read_ipc_file() |>
     mutate(across(where(~inherits(.x, "POSIXt")), ~lubridate::with_tz(.x, "UTC"))) |>
     as.data.frame()
 }

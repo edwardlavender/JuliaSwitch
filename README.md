@@ -110,7 +110,7 @@ methods for other special cases.
 - `julia_receive()`, which wraps `JuliaCall::julia_eval()` and directly
   handles most object types;
 - `juliaReceive()`, which wraps `JuliaConnectoR::juliaEval()` for
-  ‘small’ objects or `Arrow.write` and `arrow::read_feather()` for
+  ‘small’ objects or `Arrow.write` and `arrow::read_ipc_file()` for
   larger objects via specific S3 methods;
 
 | `Julia` type | `JuliaCall` method | `JuliaConnectoR` method | `R` class |

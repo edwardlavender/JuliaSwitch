@@ -91,8 +91,8 @@ juliaFeatherDataFrame <- function(x) {
     inform("Arrow.write...")
     julia_cmd_line(glue('Arrow.write(tmp_feather, {x})'))
     on.exit(unlink(tmp_feather), add = TRUE)
-    inform("arrow::read_feather...")
-    arrow::read_feather(tmp_feather) |>
+    inform("arrow::read_ipc_file...")
+    arrow::read_ipc_file(tmp_feather) |>
       as.data.frame()
 }
 
