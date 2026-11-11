@@ -30,12 +30,14 @@ julia_send <- function(name, value) {
 
 #' @rdname JuliaCall-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 julia_send.default <- function(name, value) {
   julia_assign(name, value)
 }
 
 # Send POSIXct vectors to Julia
+#' @exportS3Method
 julia_send.POSIXct <- function(name, value) {
   # JuliaCall may convert larger POSIXct vectors to integer epoch seconds;
   # convert explicitly so timestamps are always Julia DateTime values.
@@ -44,6 +46,7 @@ julia_send.POSIXct <- function(name, value) {
   julia_cmd(glue("{name} = Dates.unix2datetime.({name})"))
 }
 
+#' @exportS3Method
 julia_send.data.frame <- function(name, value) {
   julia_import("DataFrames")
   for (col in names(value)) {
@@ -58,6 +61,7 @@ julia_send.data.frame <- function(name, value) {
 
 #' @rdname JuliaCall-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 julia_send.SpatRaster <- function(name, value) {
   julia_send_SpatRaster(name, value, julia_command)
@@ -82,6 +86,7 @@ julia_receive <- function(x) {
 
 #' @rdname JuliaCall-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 julia_receive.default <- function(x) {
   julia_eval(x)
@@ -95,16 +100,19 @@ julia_receive_DateTime <- function(value) {
 }
 
 # Receive a DateTime
+#' @exportS3Method
 julia_receive.DateTime <- function(x) {
   julia_receive_DateTime(julia_eval(x))
 }
 
 # Receive a Vector of DateTimes
+#' @exportS3Method
 julia_receive.VectorDateTime <- function(x) {
   julia_receive_DateTime(julia_eval(x))
 }
 
 # Receive a DataFrame
+#' @exportS3Method
 julia_receive.DataFrame <- function(x) {
   value <- julia_eval(x)
   value[] <- lapply(value, function(column) {

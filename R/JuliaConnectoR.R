@@ -36,6 +36,7 @@ juliaSend <- function(name, value) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 juliaSend.default <- function(name, value) {
   # assign_expr <- juliaCall("Expr",
@@ -48,6 +49,7 @@ juliaSend.default <- function(name, value) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Send POSIXct vectors to Julia
 juliaSend.POSIXct <- function(name, value) {
@@ -60,6 +62,7 @@ juliaSend.POSIXct <- function(name, value) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 juliaSend.data.frame <- function(name, value) {
   julia_import("DataFrames")
@@ -79,6 +82,7 @@ juliaSend.data.frame <- function(name, value) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 juliaSend.list <- function(name, value) {
 
@@ -119,6 +123,7 @@ juliaSend.list <- function(name, value) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 juliaSend.SpatRaster <- function(name, value) {
   julia_send_SpatRaster(name, value, juliaEval)
@@ -152,6 +157,7 @@ juliaReceive <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Default receive method (uses TCP)
 juliaReceive.default <- function(x) {
@@ -162,6 +168,7 @@ juliaReceive.default <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Receive a single DateTime from Julia (uses TCP)
 juliaReceive.DateTime <- function(x) {
@@ -172,6 +179,7 @@ juliaReceive.DateTime <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Receive a 'simple' vector (e.g. Vector{Float64})
 juliaReceive.VectorSimple <- function(x) {
@@ -182,6 +190,7 @@ juliaReceive.VectorSimple <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Receive a Vector of Date Times
 juliaReceive.VectorDateTime <- function(x) {
@@ -192,6 +201,7 @@ juliaReceive.VectorDateTime <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 juliaReceive.DataFrame <- function(x) {
   juliaReceiveSwitch(x, juliaReceiveMemDataFrame, juliaReceiveFeatherDataFrame)
@@ -199,6 +209,7 @@ juliaReceive.DataFrame <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Recursively handle Vector{Any} objects
 juliaReceive.VectorAny <- function(x) {
@@ -210,6 +221,7 @@ juliaReceive.VectorAny <- function(x) {
 
 #' @rdname JuliaConnectoR-wrappers
 #' @keywords internal
+#' @exportS3Method
 
 # Recursively handle NamedTuple objects
 juliaReceive.NamedTuple <- function(x) {
