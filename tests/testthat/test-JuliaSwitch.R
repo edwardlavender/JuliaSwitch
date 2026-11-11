@@ -93,15 +93,36 @@ test_that("JuliaSwitch works", {
       # Test for a vector of timestamps
       julia_push("timeline", timeline)
       expect_equal(timeline, julia_pull("timeline"))
+      expect_equal("2016-01-01T00:00:00", julia_pull("string(timeline[1])"))
 
-      # Test for a big vector of time steps
-      # With big vector tzone is not maintained (via arrow)
-      # https://stackoverflow.com/questions/68665865/issue-with-timestamp-parsing-in-read-csv-arrow-from-arrow-package-in-r
-      timeline <- seq(as.POSIXct("2016-01-01", tz = "UTC"),
-                      as.POSIXct("2016-02-01 03:18:00", tz = "UTC"),
-                      by = "2 mins")
+      # Test non-UTC timestamps across standard and daylight time
+      timeline_local <- as.POSIXct(c("2025-01-15 12:00:00",
+                                     "2025-07-15 12:00:00"),
+                                   tz = "America/Halifax")
+      timeline_utc <- lubridate::with_tz(timeline_local, "UTC")
+      julia_push("timeline_local", timeline_local)
+      expect_equal(c("2025-01-15T16:00:00", "2025-07-15T15:00:00"),
+                   c(julia_pull("string(timeline_local[1])"),
+                     julia_pull("string(timeline_local[2])")))
+      expect_equal(timeline_utc, julia_pull("timeline_local"))
+
+      # Test a big UTC vector (transferred via Arrow with JuliaConnectoR)
+      timeline <- seq(as.POSIXct("2025-03-09 04:00:00", tz = "UTC"),
+                      by = "2 mins",
+                      length.out = 200L)
       julia_push("timeline", timeline)
-      expect_equal(timeline, julia_pull("timeline"), ignore_attr = TRUE)
+      expect_equal("Vector{DateTime}", julia_pull("string(typeof(timeline))"))
+      expect_equal(timeline, julia_pull("timeline"))
+
+      # Test a big non-UTC vector across a daylight-saving transition
+      timeline_local <- seq(
+        as.POSIXct("2025-03-09 00:00:00", tz = "America/Halifax"),
+        by = "2 mins",
+        length.out = 200L
+      )
+      timeline_utc <- lubridate::with_tz(timeline_local, "UTC")
+      julia_push("timeline_local", timeline_local)
+      expect_equal(timeline_utc, julia_pull("timeline_local"))
 
       # Test for a one-row dataframe
       d <- data.frame(timestamp = timeline[1], timestep = 1)

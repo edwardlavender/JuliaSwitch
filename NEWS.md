@@ -2,6 +2,8 @@
 
 * `julia_pull()` now supports assignment expressions (#1).
 
+* `julia_pull()` returns timestamps in UTC, and `julia_push()` now accepts non-UTC `POSIXct` values while preserving their instants in Julia.
+
 * Export new functions:
     - `julia_cmd()`, to run arbitrary code;
     - `julia_pkg_installed()`, to check if package(s) are installed;

@@ -52,13 +52,8 @@ juliaSend.default <- function(name, value) {
 # Send POSIXct vectors to Julia
 juliaSend.POSIXct <- function(name, value) {
   juliaEval("import Dates")
-  if (lubridate::tz(value) == "") {
-    abort("Time zone is assumed to be UTC.")
-    lubridate::tz(value) <- "UTC"
-  }
-  if (lubridate::tz(value) != "UTC") {
-    abort("Only the UTC time zone is supported.")
-  }
+  # POSIXct stores instants as seconds since the Unix epoch, regardless of
+  # their display time zone. Julia DateTime values are represented in UTC.
   juliaSend(name, as.numeric(value))
   julia_cmd(glue("{name} = Dates.unix2datetime.({name})"))
 }

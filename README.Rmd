@@ -79,8 +79,8 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 | `R` class     | `JuliaCall` method        | `JuliaConnectoR` method     | `Julia` type |
 |:--------------|:--------------------------|:----------------------------|:-------------|
 | `Vector`     | `julia_send.default`      | `juliaSend.default`        | One-dimensional vector,<br>e.g. `Vector{Float64}` |
-| `POSIXct`    | `julia_send.default`      | `juliaSend.POSIXct`        | `DateTime` or<br>`Vector{DateTime}` |
-| `data.frame` | `julia_send.default`      | `juliaSend.data.frame`     | `DataFrame` |
+| `POSIXct`    | `julia_send.POSIXct`      | `juliaSend.POSIXct`        | `DateTime` or<br>`Vector{DateTime}` |
+| `data.frame` | `julia_send.data.frame`   | `juliaSend.data.frame`     | `DataFrame` |
 | `list`       | `julia_send.default`      | `juliaSend.list`           | `Any[]` (empty `list`),<br>`Vector{Any}` (unnamed `list`),<br>`OrderedCollections.OrderedDict{Symbol, Any}` (named `list`) |
 | `SpatRaster` | `julia_send.SpatRaster`   | `juliaSend.SpatRaster`     | `GeoArray` |
 
@@ -95,9 +95,9 @@ devtools::install_github("edwardlavender/JuliaSwitch",
 |----------------------|------------------------------|-------------------------------------|--------------|
 | (default)            | `julia_receive.default`      | `juliaReceive.default`              | —            |
 | One-dimensional vector<br>e.g. `Vector{Float64}` | `julia_receive.default` | `juliaReceive.VectorSimple` | Vector (e.g. `numeric`) |
-| `DateTime`           | `julia_receive.default`      | `juliaReceive.DateTime`              | `POSIXct`    |
-| `Vector{DateTime}`   | `julia_receive.default`      | `juliaReceive.VectorDateTime`        | `POSIXct`    |
-| `DataFrame`          | `julia_receive.default`      | `juliaReceive.DataFrame`             | `data.frame`|
+| `DateTime`           | `julia_receive.DateTime`      | `juliaReceive.DateTime`              | `POSIXct` (UTC) |
+| `Vector{DateTime}`   | `julia_receive.VectorDateTime` | `juliaReceive.VectorDateTime`        | `POSIXct` (UTC) |
+| `DataFrame`          | `julia_receive.DataFrame`     | `juliaReceive.DataFrame`             | `data.frame`|
 | `Vector{Any}`        | `julia_receive.default`      | `juliaReceive.VectorAny`             | `list`       |
 | `NamedTuple`         | `julia_receive.default`      | `juliaReceive.NamedTuple`            | `list`       |
 

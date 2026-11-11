@@ -33,6 +33,8 @@
 #' * [`julia_push()`] and [`julia_pull()`] push/pull `R` objects to/from `Julia`.
 #'    - [`julia_push()`] wraps [`julia_send()`] or [`juliaSend()`]. These functions expect a `name`--`value` argument pair. [`julia_push()`] returns `invisible(NULL)`.
 #'    - [`julia_pull()`] wraps [`JuliaCall::julia_eval()`] or [`juliaReceive()`]. These functions expect a `character` string of `Julia` code or the name of an `object` in `Julia` that is pulled to `R`.
+#'    - `POSIXct` values are converted to UTC because Julia's
+#'      `Dates.DateTime` does not retain time-zone metadata.
 #'
 #' # Helpers
 #'

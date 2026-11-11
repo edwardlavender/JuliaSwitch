@@ -115,6 +115,8 @@ A common \code{R}--\code{Julia} interface syntax.
 \itemize{
 \item \code{\link[=julia_push]{julia_push()}} wraps \code{\link[=julia_send]{julia_send()}} or \code{\link[=juliaSend]{juliaSend()}}. These functions expect a \code{name}--\code{value} argument pair. \code{\link[=julia_push]{julia_push()}} returns \code{invisible(NULL)}.
 \item \code{\link[=julia_pull]{julia_pull()}} wraps \code{\link[JuliaCall:julia_eval]{JuliaCall::julia_eval()}} or \code{\link[=juliaReceive]{juliaReceive()}}. These functions expect a \code{character} string of \code{Julia} code or the name of an \code{object} in \code{Julia} that is pulled to \code{R}.
+\item \code{POSIXct} values are converted to UTC because Julia's
+\code{Dates.DateTime} does not retain time-zone metadata.
 }
 }
 }
